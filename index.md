@@ -1,3 +1,9 @@
+
+
+[TOC]
+
+
+
 ![image-20250902212008753](./抓包.assets/image-20250902212008753.png)
 
 ![导航航概述](./抓包.assets/8e5e742f938bd9ec883e686ca2812a03.png)
@@ -8,29 +14,30 @@
 
 # MacOS 抓包工具Charles：安装与使用
 
-1. 安装
-2. 工作原理
-3. 组件介绍
-4. 代理配置
-4.1 Charles 代理配置
-4.2 客户端-MacOS
-4.2.1 代理配置
-4.2.2 证书配置
-4.3 客户端-IOS
-4.3.1 代理配置
-4.3.2 证书配置
-5. 使用
-5.1 抓包分析
-5.2 断点调试
-5.2.1 断点配置
-5.2.2 断点分析
-5.3 弱网测试
-5.3.1 流量配置：模拟2G/3G/4G网络等
-5.3.2 弱网测试
-5.4 map 功能
-（1）map remote 远程映射
-（2） map local 本地映射
-5.5 Rewrite 功能
+### 安装
+
+1. 工作原理
+2. 组件介绍
+3. 代理配置
+  4.1 Charles 代理配置
+  4.2 客户端-MacOS
+  4.2.1 代理配置
+  4.2.2 证书配置
+  4.3 客户端-IOS
+  4.3.1 代理配置
+  4.3.2 证书配置
+4. 使用
+  5.1 抓包分析
+  5.2 断点调试
+  5.2.1 断点配置
+  5.2.2 断点分析
+  5.3 弱网测试
+  5.3.1 流量配置：模拟2G/3G/4G网络等
+  5.3.2 弱网测试
+  5.4 map 功能
+  （1）map remote 远程映射
+  （2） map local 本地映射
+  5.5 Rewrite 功能
 
 参考视频：https://www.bilibili.com/video/BV1mQ4y1N7dn?p=10
 
@@ -55,8 +62,8 @@ https://www.charlesproxy.com/latest-release/download.do
 
    ![img](./抓包.assets/a5b877d41ebb19c24182ca157dd92841.png)
 
+### 步骤：
 
-步骤：
 1、客户端发送请求
 2、Charles接收再发送给服务端
 3、服务端返回请求结果给Charles
@@ -65,7 +72,7 @@ https://www.charlesproxy.com/latest-release/download.do
 
 
 
-3. 组件介绍
+3. ### 组件介绍
 
 ![img](./抓包.assets/20c764bf87d7987fa42edcbb1601c832.jpeg)
 
@@ -76,8 +83,9 @@ https://www.charlesproxy.com/latest-release/download.do
 ![img](./抓包.assets/ba3d5fb70bd9362d707b3669464935b9.jpeg)
 
 
-4. 代理配置
-4.1 Charles 代理配置
+4. ### 代理配置
+
+  4.1 Charles 代理配置
 
 ![img](./抓包.assets/55836ebc4d82f812bf4746e7e41e7c9e.jpeg)
 
@@ -123,7 +131,8 @@ ip地址：哪台电脑安装的charles则输入哪台电脑的ip地址
 
 
 
-4.3 客户端-IOS
+### 4.3 客户端-IOS
+
 4.3.1 代理配置
 步骤：
 1、ios手机中选择“设置”-“无线局域网”
@@ -157,8 +166,8 @@ Charles代理配置-客户端代理配置-操作客户端软件-分析请求数�
 
 ![img](./抓包.assets/fab0fbb5ea58c8eafe73bd45c46a3b8d.jpeg)
 
+### 5.3.2 弱网测试
 
-5.3.2 弱网测试
 分析相关时间数据，响应时间慢
 分析页面展示状态，弱网状态下，APP加载慢，会不会导致崩溃
 5.4 map 功能
@@ -175,5 +184,7 @@ map功能：将某个请求进行重定向，用重定向的内容来响应请�
 
 （2） map local 本地映射
 将某个网络请求重定向到本地的某个文件
-5.5 Rewrite 功能
+
+### 5.5 Rewrite 功能
+
 可用于修改请求和返回的工具，可以重写
