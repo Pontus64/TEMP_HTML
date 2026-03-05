@@ -4,332 +4,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>摄影师影展 | CLIENT GALLERY</title>
+    <title>LIGHT & FRAME | NARRATIVE</title>
     <style>
-        /* --- 全局重置 --- */
+        :root {
+            --sb-width: 280px;
+            --sb-collapsed: 68px;
+            --bg-dark: #0a0a0a;
+            --bg-panel: #141414;
+            --accent: #d4af37;
+            /* 香槟金 */
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        :root {
-            --sidebar-width: 280px;
-            --bg-dark: #121212;
-            --bg-panel: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-muted: #888;
-            --accent: #d4af37;
-            /* 香槟金 */
-            --gap: 20px;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-dark);
-            color: var(--text-main);
+            color: #fff;
+            font-family: "Inter", -apple-system, sans-serif;
+            display: flex;
             height: 100vh;
             overflow: hidden;
-            display: flex;
         }
 
-        /* --- 左侧导航栏 --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--bg-panel);
-            border-right: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            flex-shrink: 0;
-            z-index: 100;
-            transition: transform 0.3s ease;
-        }
-
-        .brand {
-            padding: 0 25px 25px;
-            border-bottom: 1px solid #333;
-            margin-bottom: 10px;
-        }
-
-        .brand h1 {
-            font-size: 1.1rem;
-            letter-spacing: 3px;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
-
-        .brand p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-            letter-spacing: 1px;
-        }
-
-        .nav-list {
-            list-style: none;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        /* 滚动条美化 */
-        .nav-list::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .nav-list::-webkit-scrollbar-thumb {
-            background: #333;
-        }
-
-        .nav-item {
-            padding: 18px 25px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #252525;
-        }
-
-        .nav-item:hover {
-            background-color: #2a2a2a;
-        }
-
-        .nav-item.active {
-            background-color: #252525;
-            border-left-color: var(--accent);
-        }
-
-        .nav-item .client-name {
-            font-weight: 500;
-            font-size: 0.95rem;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .nav-item .client-info {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* --- 右侧主内容区 --- */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            position: relative;
-            padding: 40px;
-            scroll-behavior: smooth;
-        }
-
-        /* 头部信息 */
-        .gallery-header {
-            max-width: 1400px;
-            margin: 0 auto 40px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid #333;
-            animation: fadeIn 0.6s ease;
-        }
-
-        .gallery-header h2 {
-            font-size: 2.2rem;
-            font-weight: 300;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-        }
-
-        .gallery-header .meta {
-            display: flex;
-            gap: 20px;
-            font-size: 0.85rem;
-            color: var(--accent);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .gallery-header p {
-            color: var(--text-muted);
-            max-width: 700px;
-            line-height: 1.8;
-        }
-
-        /* 瀑布流相册 (Masonry) */
-        .gallery-grid {
-            max-width: 1400px;
-            margin: 0 auto;
-            column-count: 3;
-            /* 默认3列 */
-            column-gap: var(--gap);
-            animation: slideUp 0.6s ease;
-        }
-
-        .photo-card {
-            break-inside: avoid;
-            margin-bottom: var(--gap);
-            background: #000;
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-            cursor: zoom-in;
-        }
-
-        .photo-card img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: transform 0.4s ease, opacity 0.4s ease;
-            opacity: 0;
-            /* 初始隐藏，等JS加载显示 */
-        }
-
-        .photo-card img.loaded {
-            opacity: 1;
-        }
-
-        .photo-card:hover img {
-            transform: scale(1.03);
-            opacity: 0.8;
-        }
-
-        /* 留言区 */
-        .comment-wrapper {
-            max-width: 900px;
-            margin: 80px auto 40px;
-            padding: 40px;
-            background: var(--bg-panel);
-            border-radius: 8px;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .comment-header {
-            border-bottom: 1px solid #333;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .comment-header h3 {
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        /* --- 动画 --- */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* --- 灯箱 --- */
-        .lightbox {
+        /* --- 侧边栏 & 遮罩 --- */
+        .overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 90;
         }
 
-        .lightbox.active {
+        .overlay.active {
+            display: block;
+        }
+
+        .sidebar {
+            width: var(--sb-width);
+            background: var(--bg-panel);
             display: flex;
-            animation: fadeIn 0.2s;
+            flex-direction: column;
+            transition: width var(--transition), transform var(--transition);
+            z-index: 100;
+            flex-shrink: 0;
+            border-right: 1px solid #222;
         }
 
-        .lightbox img {
-            max-width: 95%;
-            max-height: 95vh;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
+        .sidebar.collapsed {
+            width: var(--sb-collapsed);
         }
 
-        .close-lb {
-            position: absolute;
-            top: 30px;
-            right: 40px;
+        .nav-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            height: 70px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
             color: #fff;
-            font-size: 50px;
             cursor: pointer;
-            opacity: 0.7;
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .brand-box {
+            overflow: hidden;
+            white-space: nowrap;
+            margin-left: 12px;
             transition: opacity 0.3s;
         }
 
-        .close-lb:hover {
+        .sidebar.collapsed .brand-box {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 10px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            color: #888;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #252525;
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: #1a1a1a;
+            color: var(--accent);
+        }
+
+        .nav-item svg {
+            min-width: 24px;
+            margin-right: 18px;
+        }
+
+        .nav-text {
+            transition: opacity 0.2s;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+        }
+
+        /* --- 主内容区 & 瀑布流 --- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+        }
+
+        .gallery-header {
+            max-width: 1200px;
+            margin: 40px auto 60px;
+            text-align: left;
+        }
+
+        .gallery-header h2 {
+            font-weight: 200;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .gallery-header p {
+            color: #666;
+            max-width: 600px;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .masonry-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            column-count: 3;
+            column-gap: 25px;
+        }
+
+        .photo-card {
+            break-inside: avoid;
+            margin-bottom: 25px;
+            background: #111;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .photo-card img.loaded {
             opacity: 1;
         }
 
-        /* --- 移动端适配 --- */
-        .mobile-toggle {
-            display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 3000;
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            font-weight: bold;
+        .photo-card:hover {
+            transform: translateY(-5px);
         }
 
+        /* --- 响应式微调 --- */
         @media (max-width: 1024px) {
-            .gallery-grid {
+            .masonry-grid {
                 column-count: 2;
             }
         }
 
         @media (max-width: 768px) {
-            .mobile-toggle {
-                display: block;
-            }
-
             .sidebar {
                 position: fixed;
+                left: 0;
+                top: 0;
                 height: 100%;
                 transform: translateX(-100%);
-                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+                width: 280px !important;
             }
 
-            .sidebar.open {
+            .sidebar.mobile-open {
                 transform: translateX(0);
             }
 
-            .gallery-grid {
-                column-count: 1;
+            .overlay.active {
+                display: block;
             }
 
             .main-content {
-                padding: 20px;
-                padding-top: 70px;
+                padding: 80px 20px 20px;
             }
 
-            .gallery-header h2 {
-                font-size: 1.5rem;
+            .masonry-grid {
+                column-count: 1;
+            }
+
+            .mobile-fab {
+                display: flex;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 80;
+                background: var(--bg-panel);
+                border: 1px solid #333;
+                padding: 10px;
+                border-radius: 12px;
+                cursor: pointer;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-fab {
+                display: none;
             }
         }
     </style>
@@ -337,312 +259,117 @@
 
 <body>
 
-    <button class="mobile-toggle" onclick="toggleSidebar()">MENU</button>
+    <div class="mobile-fab" onclick="toggleSidebar()">
+        <svg style="width:24px;height:24px;fill:#fff" viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+        </svg>
+    </div>
 
-    <nav class="sidebar" id="sidebar">
-        <div class="brand">
-            <h1>LENS & LIGHT</h1>
-            <p>专业影像交付系统</p>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="nav-header">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <svg style="width:24px;height:24px;fill:#fff" viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </button>
+            <div class="brand-box">
+                <div style="font-weight: 200; font-size: 1rem; letter-spacing: 3px;">LIGHT & FRAME</div>
+                <div style="font-size: 0.6rem; color: var(--accent); letter-spacing: 4px; opacity: 0.8;">NARRATIVE</div>
+            </div>
         </div>
-        <ul class="nav-list" id="client-list">
-        </ul>
-    </nav>
 
-    <main class="main-content" id="main-scroll">
-        <div id="dynamic-container">
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="loadCategory('landscape')">
+                <svg style="width:24px;height:24px;fill:currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                </svg>
+                <span class="nav-text">Mountains</span>
+            </li>
+            <li class="nav-item" onclick="loadCategory('city')">
+                <svg style="width:24px;height:24px;fill:currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M15 11V5l-3-3-3 3v2H3v14h18V11h-6zm-8 8H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2zm6 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm6 12h-2v-2h2v2zm0-4h-2v-2h2v2z" />
+                </svg>
+                <span class="nav-text">Urban Narrative</span>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content" id="main-content">
+        <header class="gallery-header">
+            <h2 id="cat-title">The Silent Narrative</h2>
+            <p id="cat-desc">构图是对混乱世界的提炼。在这里，光影不是背景，而是主角。每一帧都是一次关于空间的无声对话。</p>
+        </header>
+
+        <div class="masonry-grid" id="gallery">
         </div>
     </main>
 
-    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-        <span class="close-lb">&times;</span>
-        <img id="lb-img" src="" alt="">
-    </div>
-
     <script>
-        // ==========================================
-        // 💾 模拟数据库：这里放入了大量真实照片
-        // ==========================================
-        // const clientsData = [
-        //     {
-        //         id: "2023-WED-01",
-        //         name: "Sarah & Mike",
-        //         category: "Wedding 婚礼纪实",
-        //         date: "2023 Oct 15",
-        //         desc: "一场在加州秋日暖阳下的草坪婚礼。重点捕捉了宾客的情绪互动，以及新人在夕阳下的剪影。色调偏向柯达 Portra 400 的温暖胶片感。",
-        //         photos: [
-        //             "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1520854221256-17451cc330e7?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1519225448526-72995805e9e5?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1522673607200-1645062cd958?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=800&q=80"
-        //         ]
-        //     },
-        //     {
-        //         id: "2023-COM-05",
-        //         name: "NEON 潮牌",
-        //         category: "Commercial 商业",
-        //         date: "2023 Nov 02",
-        //         desc: "赛博朋克风格的夜景人像拍摄。利用街道的霓虹灯作为主光源，展现品牌的年轻与叛逆。高对比度，冷暖色调对冲。",
-        //         photos: [
-        //             "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80"
-        //         ]
-        //     },
-        //     {
-        //         id: "2023-ARCH-03",
-        //         name: "City Museum",
-        //         category: "Architecture 建筑",
-        //         date: "2023 Dec 10",
-        //         desc: "为市美术馆新馆拍摄的宣发图片。重点表现建筑的几何线条、混凝土质感以及光影在不同时间段的变化。极简构图。",
-        //         photos: [
-        //             "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1518352724948-729141894ed1?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1435575653489-b0873ec954e2?w=800&q=80"
-        //         ]
-        //     },
-        //     {
-        //         id: "2024-PORT-01",
-        //         name: "Lina's Portfolio",
-        //         category: "Portrait 人像写真",
-        //         date: "2024 Jan 05",
-        //         desc: "室内自然光写真。使用 85mm 镜头捕捉模特的眼神光，后期调整了肤色，使其呈现奶油般的通透感。",
-        //         photos: [
-        //             "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=800&q=80",
-        //             "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80"
-        //         ]
-        //     }
-        // ];
-        //   const clientsData = [
-        //         {
-        //             id: "2024-SELF-01",
-        //             name: "精修自拍系列",
-        //             category: "Portrait 个人写真",
-        //             date: "2024 MAR",
-        //             desc: "在不同场景下的精修人像作品，包含布鲁维斯号沉船等外景拍摄。注重光影氛围与后期质感。",
-        //             photos: [
-        //                 "https://drive.google.com/uc?export=view&id=1lyr3HXoFrhrCXQDgrWO1ezknoF37ykYt",
-        //                 "https://drive.google.com/uc?export=view&id=1u5lRcIjSM0UHYeN_nqoXpn-XS_ANlgPJ",
-        //                 "https://drive.google.com/uc?export=view&id=1-79NLL_M0OtPd-xrk_b0bIV89iA-mdH4",
-        //                 "https://drive.google.com/uc?export=view&id=17az0R-aYh9bw3KSUnjU_JnJL6_f7EfSX",
-        //                 "https://drive.google.com/uc?export=view&id=1MjutytWCFda5eKXMnEdAzow0FRaveMn0"
-        //             ]
-        //         },
-        //         {
-        //             id: "2024-NJ-02",
-        //             name: "南京纪实",
-        //             category: "Travel 旅拍",
-        //             date: "2024 FEB",
-        //             desc: "南京街头与室内的碎片记录。通过胶片色调还原古城的冬日氛围。",
-        //             photos: [
-        //                 "https://drive.google.com/uc?export=view&id=1HHRNGfUi531d1NxWCoUWqWF8WUSLXoIl",
-        //                 "https://drive.google.com/uc?export=view&id=1E1xIKzAqnz_ey19CiCV4R4zE0xjnNlti"
-        //             ]
-        //         },
-        //         {
-        //             id: "2024-RAW-03",
-        //             name: "日常随笔 (未命名)",
-        //             category: "Life 日常",
-        //             date: "2024 JAN",
-        //             desc: "富士相机直出的生活瞬间，保留了最真实的肤色与光线环境。",
-        //             photos: [
-        //                 "https://drive.google.com/uc?export=view&id=1ZgWBoVK2yOw6Azfp386p2tJb-Nlh-56X",
-        //                 "https://drive.google.com/uc?export=view&id=1HtB62ccYHhjmFI5Xr0MW-006oyok4Qe8",
-        //                 "https://drive.google.com/uc?export=view&id=1nPsW57z7vbC-wCjP7GnNxIVf49CPivEn",
-        //                 "https://drive.google.com/uc?export=view&id=13ocTwjo-dMNc4xRi7oCk4XWuzCf9IysY",
-        //                 "https://drive.google.com/uc?export=view&id=18s2Mw1DPRgIPeB3qOhIUWVwEcvg9lXVl",
-        //                 "https://drive.google.com/uc?export=view&id=1cThpWy5PSLR0CBQ-8KDTTEFCxmKztj6S",
-        //                 "https://drive.google.com/uc?export=view&id=1ZGNUaEkavu6L1pYNuUp5z4kOFcI4_zKF",
-        //                 "https://drive.google.com/uc?export=view&id=1Z_aHhLJ6VtZXPky6beg8KKbObSvVXoyQ",
-        //                 "https://drive.google.com/uc?export=view&id=1SQY5BDxeqz76pHMB5kbK_FV8Tcpn0otu",
-        //                 "https://drive.google.com/uc?export=view&id=1cCKLOt9XkpX-Xy5DikgCw7y2sIT3Ukm9",
-        //                 "https://drive.google.com/uc?export=view&id=1kmBnQ-1Mx9e4bMrIkzDKhyxVjQ_f4eBB",
-        //                 "https://drive.google.com/uc?export=view&id=1PLLosDbtjYR_KbmNuMjbuuIqu0xeJQUP",
-        //                 "https://drive.google.com/uc?export=view&id=1RP8DitsJCYQq3HuDp47LKHlqNwoQvJGM",
-        //                 "https://drive.google.com/uc?export=view&id=1qvVbDPUQGXEVcdNKPOCSQIcqHL0uKj-8",
-        //                 "https://drive.google.com/uc?export=view&id=1rmxPd4T7wRH1q3ntcLOWj2UZJ9vSR_RF",
-        //                 "https://drive.google.com/uc?export=view&id=15cwQdiL-fPNcRPx8nnjJ6hkSIVSWbq10",
-        //                 "https://drive.google.com/uc?export=view&id=1r4YriZONAqzJSGREuFxTFEp8rWrUfhCi",
-        //                 "https://drive.google.com/uc?export=view&id=1KR3elqoyy0iyfyZs3t0tMLMpLF1E3XiD"
-        //             ]
-        //         }
-        //     ];
-        const clientsData = [
-                {
-                    id: "2024-SELFIE-01",
-                    name: "精修自拍",
-                    category: "Portrait 写真",
-                    date: "2024 MAR",
-                    desc: "在不同场景下的精修作品，包含布鲁维斯号沉船等外景。网页加载使用的是预览加速链接。",
-                    // 存储对象数组：p 是预览小图，o 是高清原图
-                    photos: [
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1lyr3HXoFrhrCXQDgrWO1ezknoF37ykYt", o: "https://drive.google.com/uc?export=view&id=1lyr3HXoFrhrCXQDgrWO1ezknoF37ykYt" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1u5lRcIjSM0UHYeN_nqoXpn-XS_ANlgPJ", o: "https://drive.google.com/uc?export=view&id=1u5lRcIjSM0UHYeN_nqoXpn-XS_ANlgPJ" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1-79NLL_M0OtPd-xrk_b0bIV89iA-mdH4", o: "https://drive.google.com/uc?export=view&id=1-79NLL_M0OtPd-xrk_b0bIV89iA-mdH4" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=17az0R-aYh9bw3KSUnjU_JnJL6_f7EfSX", o: "https://drive.google.com/uc?export=view&id=17az0R-aYh9bw3KSUnjU_JnJL6_f7EfSX" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1MjutytWCFda5eKXMnEdAzow0FRaveMn0", o: "https://drive.google.com/uc?export=view&id=1MjutytWCFda5eKXMnEdAzow0FRaveMn0" }
-                    ]
-                },
-                {
-                    id: "2024-NJ-02",
-                    name: "南京系列",
-                    category: "Travel 旅拍",
-                    date: "2024 FEB",
-                    desc: "南京街头的碎片记录。",
-                    photos: [
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1HHRNGfUi531d1NxWCoUWqWF8WUSLXoIl", o: "https://drive.google.com/uc?export=view&id=1HHRNGfUi531d1NxWCoUWqWF8WUSLXoIl" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1E1xIKzAqnz_ey19CiCV4R4zE0xjnNlti", o: "https://drive.google.com/uc?export=view&id=1E1xIKzAqnz_ey19CiCV4R4zE0xjnNlti" }
-                    ]
-                },
-                {
-                    id: "2024-RAW-03",
-                    name: "未命名文件夹",
-                    category: "Life 纪实",
-                    date: "2024 JAN",
-                    desc: "生活中的原始瞬间。",
-                    photos: [
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1ZgWBoVK2yOw6Azfp386p2tJb-Nlh-56X", o: "https://drive.google.com/uc?export=view&id=1ZgWBoVK2yOw6Azfp386p2tJb-Nlh-56X" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1HtB62ccYHhjmFI5Xr0MW-006oyok4Qe8", o: "https://drive.google.com/uc?export=view&id=1HtB62ccYHhjmFI5Xr0MW-006oyok4Qe8" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1nPsW57z7vbC-wCjP7GnNxIVf49CPivEn", o: "https://drive.google.com/uc?export=view&id=1nPsW57z7vbC-wCjP7GnNxIVf49CPivEn" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=13ocTwjo-dMNc4xRi7oCk4XWuzCf9IysY", o: "https://drive.google.com/uc?export=view&id=13ocTwjo-dMNc4xRi7oCk4XWuzCf9IysY" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=18s2Mw1DPRgIPeB3qOhIUWVwEcvg9lXVl", o: "https://drive.google.com/uc?export=view&id=18s2Mw1DPRgIPeB3qOhIUWVwEcvg9lXVl" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1cThpWy5PSLR0CBQ-8KDTTEFCxmKztj6S", o: "https://drive.google.com/uc?export=view&id=1cThpWy5PSLR0CBQ-8KDTTEFCxmKztj6S" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1ZGNUaEkavu6L1pYNuUp5z4kOFcI4_zKF", o: "https://drive.google.com/uc?export=view&id=1ZGNUaEkavu6L1pYNuUp5z4kOFcI4_zKF" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1Z_aHhLJ6VtZXPky6beg8KKbObSvVXoyQ", o: "https://drive.google.com/uc?export=view&id=1Z_aHhLJ6VtZXPky6beg8KKbObSvVXoyQ" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1SQY5BDxeqz76pHMB5kbK_FV8Tcpn0otu", o: "https://drive.google.com/uc?export=view&id=1SQY5BDxeqz76pHMB5kbK_FV8Tcpn0otu" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1cCKLOt9XkpX-Xy5DikgCw7y2sIT3Ukm9", o: "https://drive.google.com/uc?export=view&id=1cCKLOt9XkpX-Xy5DikgCw7y2sIT3Ukm9" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1kmBnQ-1Mx9e4bMrIkzDKhyxVjQ_f4eBB", o: "https://drive.google.com/uc?export=view&id=1kmBnQ-1Mx9e4bMrIkzDKhyxVjQ_f4eBB" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1PLLosDbtjYR_KbmNuMjbuuIqu0xeJQUP", o: "https://drive.google.com/uc?export=view&id=1PLLosDbtjYR_KbmNuMjbuuIqu0xeJQUP" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1RP8DitsJCYQq3HuDp47LKHlqNwoQvJGM", o: "https://drive.google.com/uc?export=view&id=1RP8DitsJCYQq3HuDp47LKHlqNwoQvJGM" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1qvVbDPUQGXEVcdNKPOCSQIcqHL0uKj-8", o: "https://drive.google.com/uc?export=view&id=1qvVbDPUQGXEVcdNKPOCSQIcqHL0uKj-8" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1rmxPd4T7wRH1q3ntcLOWj2UZJ9vSR_RF", o: "https://drive.google.com/uc?export=view&id=1rmxPd4T7wRH1q3ntcLOWj2UZJ9vSR_RF" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=15cwQdiL-fPNcRPx8nnjJ6hkSIVSWbq10", o: "https://drive.google.com/uc?export=view&id=15cwQdiL-fPNcRPx8nnjJ6hkSIVSWbq10" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1r4YriZONAqzJSGREuFxTFEp8rWrUfhCi", o: "https://drive.google.com/uc?export=view&id=1r4YriZONAqzJSGREuFxTFEp8rWrUfhCi" },
-                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1KR3elqoyy0iyfyZs3t0tMLMpLF1E3XiD", o: "https://drive.google.com/uc?export=view&id=1KR3elqoyy0iyfyZs3t0tMLMpLF1E3XiD" }
-                    ]
-                }
-            ];
-        // ==========================================
-        // 🚀 逻辑处理
-        // ==========================================
+        const categories = {
+            landscape: {
+                title: "The Silent Narrative",
+                desc: "风景一直都在，我只是在进行构图。利用长焦压缩空间，捕捉山脉之间那层叠的呼吸感。",
+                images: [
+                    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1434725039720-bbad6fa30334?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1000"
+                ]
+            },
+            city: {
+                title: "Urban Geometry",
+                desc: "城市是钢筋水泥的森林，构图是寻找其中几何规律的眼睛。",
+                images: [
+                    "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1470075801209-17f9ec0cada6?q=80&w=1000"
+                ]
+            }
+        };
 
-        const navList = document.getElementById('client-list');
-        const container = document.getElementById('dynamic-container');
-        const lightbox = document.getElementById('lightbox');
-        const lbImg = document.getElementById('lb-img');
-        const mainScroll = document.getElementById('main-scroll');
-
-        // 1. 初始化侧边栏
-        function initSidebar() {
-            navList.innerHTML = '';
-            clientsData.forEach((client, index) => {
-                const li = document.createElement('li');
-                li.className = `nav-item ${index === 0 ? 'active' : ''}`;
-                li.onclick = () => loadClient(index);
-
-                li.innerHTML = `
-                    <div class="client-name">${client.name}</div>
-                    <div class="client-info">
-                        <span>${client.category.split(' ')[0]}</span>
-                        <span>${client.date.split(' ')[0]} ${client.date.split(' ')[1]}</span>
-                    </div>
-                `;
-                navList.appendChild(li);
-            });
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
         }
 
-        // 2. 核心：加载客户数据
-        function loadClient(index) {
-            // 切换选中状态
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active'));
-            navItems[index].classList.add('active');
+        function loadCategory(key) {
+            const cat = categories[key];
+            document.getElementById('cat-title').innerText = cat.title;
+            document.getElementById('cat-desc').innerText = cat.desc;
 
-            // 移动端收起菜单
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
-
-            const data = clientsData[index];
-
-            // 构建照片流 HTML (增加 onload 实现渐显效果)
-            const photosHtml = data.photos.map(photo => `
-                <div class="photo-card" onclick="openLightbox('${photo.o}')">
-                    <img src="${photo.p}" alt="photo" onload="this.classList.add('loaded')">
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = cat.images.map(img => `
+                <div class="photo-card">
+                    <img src="${img}" onload="this.classList.add('loaded')" alt="Photography">
                 </div>
             `).join('');
 
-            // 渲染内容
-            container.innerHTML = `
-                <header class="gallery-header">
-                    <div class="meta">
-                        <span>${data.category}</span>
-                        <span>//</span>
-                        <span>${data.date}</span>
-                    </div>
-                    <h2>${data.name}</h2>
-                    <p>${data.desc}</p>
-                </header>
-                
-                <div class="gallery-grid">
-                    ${photosHtml}
-                </div>
+            // 更新侧边栏状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.innerText.includes(cat.title.split(' ')[0])) item.classList.add('active');
+            });
 
-                <div class="comment-wrapper">
-                    <div class="comment-header">
-                        <h3>客户留言 / Feedback</h3>
-                        <span style="font-size:0.8rem; color:#666;">PROJECT ID: ${data.id}</span>
-                    </div>
-                    <div style="background: #151515; padding: 20px; border-radius: 4px; text-align: center; color: #555;">
-                        <p>请在此处接入第三方评论系统 (如 Valine/Disqus)</p>
-                        <p style="font-size: 12px; margin-top: 10px;">Current Page ID: ${data.id}</p>
-                    </div>
-                </div>
-            `;
-
-            // 滚动回顶部
-            mainScroll.scrollTop = 0;
+            // 手机端自动收起
+            if (window.innerWidth <= 768) toggleSidebar();
         }
 
-        // 3. 灯箱逻辑
-        function openLightbox(src) {
-            // 简单的将缩略图链接转为高清图 (这里Unsplash只要改参数即可)
-            // 实际项目中，你的缩略图和原图可能是两个不同的URL
-            lbImg.src = src;
-
-            lightbox.classList.add('active');
-        }
-
-        function closeLightbox(e) {
-            // 点击图片本身不关闭，点击背景才关闭
-            if (e.target !== lbImg) {
-                lightbox.classList.remove('active');
-                lbImg.src = ""; // 清空图片，防止下次打开闪烁
-            }
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        // 启动
-        initSidebar();
-        loadClient(0); // 默认加载第一个
-
+        // 初始化加载
+        window.onload = () => loadCategory('landscape');
     </script>
 </body>
 
