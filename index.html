@@ -1,667 +1,649 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
 <head>
-<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摄影师影展 | CLIENT GALLERY</title>
+    <style>
+        /* --- 全局重置 --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
-.mac-os-11 { --title-bar-height: 28px; }
-html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-h1, h2, h3, h4, h5 { white-space: pre-wrap; }
-body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.428571; overflow-x: hidden; background: inherit; }
-iframe { margin: auto; }
-a.url { word-break: break-all; }
-a:active, a:hover { outline: 0px; }
-.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
-#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
-#write.first-line-indent p { text-indent: 2em; }
-#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
-#write.first-line-indent li { margin-left: 2em; }
-.for-image #write { padding-left: 8px; padding-right: 8px; }
-body.typora-export { padding-left: 30px; padding-right: 30px; }
-.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
-.typora-export .task-list-item input { pointer-events: none; }
-@media screen and (max-width: 500px) {
-  body.typora-export { padding-left: 0px; padding-right: 0px; }
-  #write { padding-left: 20px; padding-right: 20px; }
-}
-#write li > figure:last-child { margin-bottom: 0.5rem; }
-#write ol, #write ul { position: relative; }
-img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
-button, input, select, textarea { color: inherit; font-style: inherit; font-variant-caps: inherit; font-weight: inherit; font-width: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-size-adjust: inherit; font-kerning: inherit; font-variant-alternates: inherit; font-variant-ligatures: inherit; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-feature-settings: inherit; font-optical-sizing: inherit; font-variation-settings: inherit; }
-input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
-*, ::after, ::before { box-sizing: border-box; }
-#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; position: relative; }
-#write svg h1, #write svg h2, #write svg h3, #write svg h4, #write svg h5, #write svg h6, #write svg p { position: static; }
-p { line-height: inherit; }
-h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
-p { orphans: 4; }
-h1 { font-size: 2rem; }
-h2 { font-size: 1.8rem; }
-h3 { font-size: 1.6rem; }
-h4 { font-size: 1.4rem; }
-h5 { font-size: 1.2rem; }
-h6 { font-size: 1rem; }
-.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
-.hidden { display: none; }
-.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
-a { cursor: pointer; }
-sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
-sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
-#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
-figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
-figure > table { margin: 0px; }
-thead, tr { break-inside: avoid; break-after: auto; }
-thead { display: table-header-group; }
-table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
-table.md-table td { min-width: 32px; }
-.CodeMirror-gutters { border-right-width: 0px; border-right-style: none; border-right-color: currentcolor; background-color: inherit; }
-.CodeMirror-linenumber { -webkit-user-select: none; }
-.CodeMirror { text-align: left; }
-.CodeMirror-placeholder { opacity: 0.3; }
-.CodeMirror pre { padding: 0px 4px; }
-.CodeMirror-lines { padding: 0px; }
-div.hr:focus { cursor: none; }
-#write pre { white-space: pre-wrap; }
-#write.fences-no-line-wrapping pre { white-space: pre; }
-#write pre.ty-contain-cm { white-space: normal; }
-.CodeMirror-gutters { margin-right: 4px; }
-.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
-.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
-#write .md-fences.mock-cm { white-space: pre-wrap; }
-.md-fences.md-fences-with-lineno { padding-left: 0px; }
-#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
-.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
-.CodeMirror-line, twitterwidget { break-inside: avoid; }
-svg { break-inside: avoid; }
-.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
-.footnotes + .footnotes { margin-top: 0px; }
-.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
-li div { padding-top: 0px; }
-blockquote { margin: 1rem 0px; }
-li .mathjax-block, li p { margin: 0.5rem 0px; }
-li blockquote { margin: 1rem 0px; }
-li { margin: 0px; position: relative; }
-blockquote > :last-child { margin-bottom: 0px; }
-blockquote > :first-child, li > :first-child { margin-top: 0px; }
-.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
-#write .footnote-line { white-space: pre-wrap; }
-@media print {
-  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
-  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
-  .typora-export * { print-color-adjust: exact; }
-  .typora-export #write { break-after: avoid; }
-  .typora-export #write::after { height: 0px; }
-  .is-mac table { break-inside: avoid; }
-  #write > p:nth-child(1) { margin-top: 0px; }
-  .typora-export-show-outline .typora-export-sidebar { display: none; }
-  figure { overflow-x: visible; }
-}
-.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
-a img, img a { cursor: pointer; }
-pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
-p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
-#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
-p > .md-image:only-child { display: inline-block; width: 100%; }
-#write .MathJax_Display { margin: 0.8em 0px 0px; }
-.md-math-block { width: 100%; }
-.md-math-block:not(:empty)::after { display: none; }
-.MathJax_ref { fill: currentcolor; }
-[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
-.md-task-list-item { position: relative; list-style-type: none; }
-.task-list-item.md-task-list-item { padding-left: 0px; }
-.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: medium; }
-.math { font-size: 1rem; }
-.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
-.md-toc-content { position: relative; margin-left: 0px; }
-.md-toc-content::after, .md-toc::after { display: none; }
-.md-toc-item { display: block; color: rgb(65, 131, 196); }
-.md-toc-item a { text-decoration: none; }
-.md-toc-inner:hover { text-decoration: underline; }
-.md-toc-inner { display: inline-block; cursor: pointer; }
-.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
-.md-toc-h2 .md-toc-inner { margin-left: 2em; }
-.md-toc-h3 .md-toc-inner { margin-left: 4em; }
-.md-toc-h4 .md-toc-inner { margin-left: 6em; }
-.md-toc-h5 .md-toc-inner { margin-left: 8em; }
-.md-toc-h6 .md-toc-inner { margin-left: 10em; }
-@media screen and (max-width: 48em) {
-  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
-  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
-  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
-  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
-}
-a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
-.footnote-line a:not(.reversefootnote) { color: inherit; }
-.reversefootnote { font-family: ui-monospace, sans-serif; }
-.md-attr { display: none; }
-.md-fn-count::after { content: "."; }
-code, pre, samp, tt { font-family: var(--monospace); }
-kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
-.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
-code { text-align: left; vertical-align: initial; }
-a.md-print-anchor { white-space: pre !important; border-width: medium !important; border-style: none !important; border-color: currentcolor !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
-.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
-.md-diagram-panel > svg { max-width: 100%; }
-[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
-[lang="mermaid"] .node text { font-size: 1rem; }
-table tr th { border-bottom-width: 0px; border-bottom-style: none; border-bottom-color: currentcolor; }
-video { max-width: 100%; display: block; margin: 0px auto; }
-iframe { max-width: 100%; width: 100%; border: medium; }
-.highlight td, .highlight tr { border: 0px; }
-mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
-.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
-.md-expand mark .md-meta { opacity: 0.3 !important; }
-mark .md-meta { color: rgb(0, 0, 0); }
-@media print {
-  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
-}
-.md-diagram-panel .messageText { stroke: none !important; }
-.md-diagram-panel .start-state { fill: var(--node-fill); }
-.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
-.md-fences.md-fences-math { font-size: 1em; }
-.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
-.md-fences-advanced:not(.md-focus) { background: inherit; }
-.mermaid-svg { margin: auto; }
-.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
-.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
-.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
-.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
-@media screen and (max-width: 1024px) {
-  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
-}
-@media screen and (max-width: 800px) {
-  .typora-export-sidebar { display: none; }
-}
-.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
-.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
-.outline-content strong { font-weight: 400; }
-.outline-expander { width: 1rem; height: 1.428571rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
-.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
-.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
-.outline-expander:hover::before { content: ""; }
-.outline-h1 > .outline-item { padding-left: 0px; }
-.outline-h2 > .outline-item { padding-left: 1em; }
-.outline-h3 > .outline-item { padding-left: 2em; }
-.outline-h4 > .outline-item { padding-left: 3em; }
-.outline-h5 > .outline-item { padding-left: 4em; }
-.outline-h6 > .outline-item { padding-left: 5em; }
-.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
-.outline-label:hover { text-decoration: underline; }
-.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
-.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left-width: 28px; border-left-style: solid; border-left-color: transparent; border-right-width: 28px; border-right-style: solid; border-right-color: transparent; }
-.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
-.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
-.outline-children { display: none; }
-.info-panel-tab-wrapper { display: none; }
-.outline-item-open > .outline-children { display: block; }
-.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
-.typora-export .outline-item:hover { margin-right: -8px; border-right-width: 8px; border-right-style: solid; border-right-color: transparent; }
-.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
-.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
-.typora-export-collapse-outline .outline-children { display: none; }
-.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
-.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
-.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
-.md-inline-math-container mjx-container { zoom: 0.95; }
-mjx-container { break-inside: avoid; }
-.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
-.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
-.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
-.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
-.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
-.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left-width: 0.25em; border-left-style: solid; border-left-color: rgb(0, 0, 0); }
-.md-alert-text-note { color: rgb(9, 105, 218); }
-.md-alert-text-important { color: rgb(130, 80, 223); }
-.md-alert-text-warning { color: rgb(154, 103, 0); }
-.md-alert-text-tip { color: rgb(31, 136, 61); }
-.md-alert-text-caution { color: rgb(207, 34, 46); }
-.md-alert-text { font-size: 0.9rem; font-weight: 700; }
-.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
-.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+        :root {
+            --sidebar-width: 280px;
+            --bg-dark: #121212;
+            --bg-panel: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+            --accent: #d4af37;
+            /* 香槟金 */
+            --gap: 20px;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
 
-:root {
-    --side-bar-bg-color: #fafafa;
-    --control-text-color: #777;
-}
+        /* --- 左侧导航栏 --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-panel);
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-shrink: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
 
-@include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+        .brand {
+            padding: 0 25px 25px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+        }
 
-/* open-sans-regular - latin-ext_latin */
-  /* open-sans-italic - latin-ext_latin */
-    /* open-sans-700 - latin-ext_latin */
-    /* open-sans-700italic - latin-ext_latin */
-  html {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-}
+        .brand h1 {
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
 
-body {
-    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
-    color: rgb(51, 51, 51);
-    line-height: 1.6;
-}
+        .brand p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
 
-#write {
-    max-width: 860px;
-  	margin: 0 auto;
-  	padding: 30px;
-    padding-bottom: 100px;
-}
+        .nav-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
 
-@media only screen and (min-width: 1400px) {
-	#write {
-		max-width: 1024px;
-	}
-}
+        /* 滚动条美化 */
+        .nav-list::-webkit-scrollbar {
+            width: 4px;
+        }
 
-@media only screen and (min-width: 1800px) {
-	#write {
-		max-width: 1200px;
-	}
-}
+        .nav-list::-webkit-scrollbar-thumb {
+            background: #333;
+        }
 
-#write > ul:first-child,
-#write > ol:first-child{
-    margin-top: 30px;
-}
+        .nav-item {
+            padding: 18px 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #252525;
+        }
 
-a {
-    color: #4183C4;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    position: relative;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    line-height: 1.4;
-    cursor: text;
-}
-h1:hover a.anchor,
-h2:hover a.anchor,
-h3:hover a.anchor,
-h4:hover a.anchor,
-h5:hover a.anchor,
-h6:hover a.anchor {
-    text-decoration: none;
-}
-h1 tt,
-h1 code {
-    font-size: inherit;
-}
-h2 tt,
-h2 code {
-    font-size: inherit;
-}
-h3 tt,
-h3 code {
-    font-size: inherit;
-}
-h4 tt,
-h4 code {
-    font-size: inherit;
-}
-h5 tt,
-h5 code {
-    font-size: inherit;
-}
-h6 tt,
-h6 code {
-    font-size: inherit;
-}
-h1 {
-    font-size: 2.25em;
-    line-height: 1.2;
-    border-bottom: 1px solid #eee;
-}
-h2 {
-    font-size: 1.75em;
-    line-height: 1.225;
-    border-bottom: 1px solid #eee;
-}
+        .nav-item:hover {
+            background-color: #2a2a2a;
+        }
 
-/*@media print {
-    .typora-export h1,
-    .typora-export h2 {
-        border-bottom: none;
-        padding-bottom: initial;
-    }
+        .nav-item.active {
+            background-color: #252525;
+            border-left-color: var(--accent);
+        }
 
-    .typora-export h1::after,
-    .typora-export h2::after {
-        content: "";
-        display: block;
-        height: 100px;
-        margin-top: -96px;
-        border-top: 1px solid #eee;
-    }
-}*/
+        .nav-item .client-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
 
-h3 {
-    font-size: 1.5em;
-    line-height: 1.43;
-}
-h4 {
-    font-size: 1.25em;
-}
-h5 {
-    font-size: 1em;
-}
-h6 {
-   font-size: 1em;
-    color: #777;
-}
-p,
-blockquote,
-ul,
-ol,
-dl,
-table{
-    margin: 0.8em 0;
-}
-li>ol,
-li>ul {
-    margin: 0 0;
-}
-hr {
-    height: 2px;
-    padding: 0;
-    margin: 16px 0;
-    background-color: #e7e7e7;
-    border: 0 none;
-    overflow: hidden;
-    box-sizing: content-box;
-}
+        .nav-item .client-info {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
 
-li p.first {
-    display: inline-block;
-}
-ul,
-ol {
-    padding-left: 30px;
-}
-ul:first-child,
-ol:first-child {
-    margin-top: 0;
-}
-ul:last-child,
-ol:last-child {
-    margin-bottom: 0;
-}
-blockquote {
-    border-left: 4px solid #dfe2e5;
-    padding: 0 15px;
-    color: #777777;
-}
-blockquote blockquote {
-    padding-right: 0;
-}
-table {
-    padding: 0;
-    word-break: initial;
-}
-table tr {
-    border: 1px solid #dfe2e5;
-    margin: 0;
-    padding: 0;
-}
-table tr:nth-child(2n),
-thead {
-    background-color: #f8f8f8;
-}
-table th {
-    font-weight: bold;
-    border: 1px solid #dfe2e5;
-    border-bottom: 0;
-    margin: 0;
-    padding: 6px 13px;
-}
-table td {
-    border: 1px solid #dfe2e5;
-    margin: 0;
-    padding: 6px 13px;
-}
-table th:first-child,
-table td:first-child {
-    margin-top: 0;
-}
-table th:last-child,
-table td:last-child {
-    margin-bottom: 0;
-}
+        /* --- 右侧主内容区 --- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px;
+            scroll-behavior: smooth;
+        }
 
-.CodeMirror-lines {
-    padding-left: 4px;
-}
+        /* 头部信息 */
+        .gallery-header {
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #333;
+            animation: fadeIn 0.6s ease;
+        }
 
-.code-tooltip {
-    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
-    border-top: 1px solid #eef2f2;
-}
+        .gallery-header h2 {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
 
-.md-fences,
-code,
-tt {
-    border: 1px solid #e7eaed;
-    background-color: #f8f8f8;
-    border-radius: 3px;
-    padding: 0;
-    padding: 2px 4px 0px 4px;
-    font-size: 0.9em;
-}
+        .gallery-header .meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-code {
-    background-color: #f3f4f4;
-    padding: 0 2px 0 2px;
-}
+        .gallery-header p {
+            color: var(--text-muted);
+            max-width: 700px;
+            line-height: 1.8;
+        }
 
-.md-fences {
-    margin-bottom: 15px;
-    margin-top: 15px;
-    padding-top: 8px;
-    padding-bottom: 6px;
-}
+        /* 瀑布流相册 (Masonry) */
+        .gallery-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            column-count: 3;
+            /* 默认3列 */
+            column-gap: var(--gap);
+            animation: slideUp 0.6s ease;
+        }
 
+        .photo-card {
+            break-inside: avoid;
+            margin-bottom: var(--gap);
+            background: #000;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            cursor: zoom-in;
+        }
 
-.md-task-list-item > input {
-  margin-left: -1.3em;
-}
+        .photo-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+            /* 初始隐藏，等JS加载显示 */
+        }
 
-@media print {
-    html {
-        font-size: 13px;
-    }
-    pre {
-        page-break-inside: avoid;
-        word-wrap: break-word;
-    }
-}
+        .photo-card img.loaded {
+            opacity: 1;
+        }
 
-.md-fences {
-	background-color: #f8f8f8;
-}
-#write pre.md-meta-block {
-	padding: 1rem;
-    font-size: 85%;
-    line-height: 1.45;
-    background-color: #f7f7f7;
-    border: 0;
-    border-radius: 3px;
-    color: #777777;
-    margin-top: 0 !important;
-}
+        .photo-card:hover img {
+            transform: scale(1.03);
+            opacity: 0.8;
+        }
 
-.mathjax-block>.code-tooltip {
-	bottom: .375rem;
-}
+        /* 留言区 */
+        .comment-wrapper {
+            max-width: 900px;
+            margin: 80px auto 40px;
+            padding: 40px;
+            background: var(--bg-panel);
+            border-radius: 8px;
+            animation: fadeIn 0.8s ease;
+        }
 
-.md-mathjax-midline {
-    background: #fafafa;
-}
+        .comment-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
 
-#write>h3.md-focus:before{
-	left: -1.5625rem;
-	top: .375rem;
-}
-#write>h4.md-focus:before{
-	left: -1.5625rem;
-	top: .285714286rem;
-}
-#write>h5.md-focus:before{
-	left: -1.5625rem;
-	top: .285714286rem;
-}
-#write>h6.md-focus:before{
-	left: -1.5625rem;
-	top: .285714286rem;
-}
-.md-image>.md-meta {
-    /*border: 1px solid #ddd;*/
-    border-radius: 3px;
-    padding: 2px 0px 0px 4px;
-    font-size: 0.9em;
-    color: inherit;
-}
+        .comment-header h3 {
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
 
-.md-tag {
-    color: #a7a7a7;
-    opacity: 1;
-}
+        /* --- 动画 --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
 
-.md-toc { 
-    margin-top:20px;
-    padding-bottom:20px;
-}
+            to {
+                opacity: 1;
+            }
+        }
 
-.sidebar-tabs {
-    border-bottom: none;
-}
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
 
-#typora-quick-open {
-    border: 1px solid #ddd;
-    background-color: #f8f8f8;
-}
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
 
-#typora-quick-open-item {
-    background-color: #FAFAFA;
-    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
-    border-style: solid;
-    border-width: 1px;
-}
+        /* --- 灯箱 --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
 
-/** focus mode */
-.on-focus-mode blockquote {
-    border-left-color: rgba(85, 85, 85, 0.12);
-}
+        .lightbox.active {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
 
-header, .context-menu, .megamenu-content, footer{
-    font-family: "Segoe UI", "Arial", sans-serif;
-}
+        .lightbox img {
+            max-width: 95%;
+            max-height: 95vh;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+        }
 
-.file-node-content:hover .file-node-icon,
-.file-node-content:hover .file-node-open-state{
-    visibility: visible;
-}
+        .close-lb {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: #fff;
+            font-size: 50px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
 
-.mac-seamless-mode #typora-sidebar {
-    background-color: #fafafa;
-    background-color: var(--side-bar-bg-color);
-}
+        .close-lb:hover {
+            opacity: 1;
+        }
 
-.mac-os #write{
-    caret-color: AccentColor;
-}
+        /* --- 移动端适配 --- */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 3000;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
 
-.md-lang {
-    color: #b4654d;
-}
+        @media (max-width: 1024px) {
+            .gallery-grid {
+                column-count: 2;
+            }
+        }
 
-/*.html-for-mac {
-    --item-hover-bg-color: #E6F0FE;
-}*/
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
 
-#md-notification .btn {
-    border: 0;
-}
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                transform: translateX(-100%);
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            }
 
-.dropdown-menu .divider {
-    border-color: #e5e5e5;
-    opacity: 0.4;
-}
+            .sidebar.open {
+                transform: translateX(0);
+            }
 
-.ty-preferences .window-content {
-    background-color: #fafafa;
-}
+            .gallery-grid {
+                column-count: 1;
+            }
 
-.ty-preferences .nav-group-item.active {
-    color: white;
-    background: #999;
-}
+            .main-content {
+                padding: 20px;
+                padding-top: 70px;
+            }
 
-.menu-item-container a.menu-style-btn {
-    background-color: #f5f8fa;
-    background-image: linear-gradient( 180deg , hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0)); 
-}
-
-
- @media print { @page {margin: 0 0 0 0;} body.typora-export {padding-left: 0; padding-right: 0;} #write {padding:0;}}
-</style><title>index</title>
+            .gallery-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
-<body class='typora-export'><div class='typora-export-content'>
-<div id='write'  class=''><p>&nbsp;</p><div class='md-toc' mdtype='toc'><p class="md-toc-content" role="list"><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n5"><a class="md-toc-inner" style="" href="#macos-抓包工具charles安装与使用">MacOS 抓包工具Charles：安装与使用</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n8"><a class="md-toc-inner" style="" href="#安装">安装</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n32"><a class="md-toc-inner" style="" href="#步骤">步骤：</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n66"><a class="md-toc-inner" style="" href="#43-客户端-ios">4.3 客户端-IOS</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n77"><a class="md-toc-inner" style="" href="#532-弱网测试">5.3.2 弱网测试</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n80"><a class="md-toc-inner" style="" href="#55-rewrite-功能">5.5 Rewrite 功能</a></span></p></div><p>&nbsp;</p><p><img src="./抓包.assets/image-20250902212008753.png" referrerpolicy="no-referrer" alt="image-20250902212008753"></p><p><img src="./抓包.assets/8e5e742f938bd9ec883e686ca2812a03.png" referrerpolicy="no-referrer" alt="导航航概述"></p><p>&nbsp;</p><p>&nbsp;</p><h1 id='macos-抓包工具charles安装与使用'><span>MacOS 抓包工具Charles：安装与使用</span></h1><h3 id='安装'><span>安装</span></h3><ol start='' ><li><p><span>工作原理</span></p></li><li><p><span>组件介绍</span></p></li><li><p><span>代理配置</span>
-<span>4.1 Charles 代理配置</span>
-<span>4.2 客户端-MacOS</span>
-<span>4.2.1 代理配置</span>
-<span>4.2.2 证书配置</span>
-<span>4.3 客户端-IOS</span>
-<span>4.3.1 代理配置</span>
-<span>4.3.2 证书配置</span></p></li><li><p><span>使用</span>
-<span>5.1 抓包分析</span>
-<span>5.2 断点调试</span>
-<span>5.2.1 断点配置</span>
-<span>5.2.2 断点分析</span>
-<span>5.3 弱网测试</span>
-<span>5.3.1 流量配置：模拟2G/3G/4G网络等</span>
-<span>5.3.2 弱网测试</span>
-<span>5.4 map 功能</span>
-<span>（1）map remote 远程映射</span>
-<span>（2） map local 本地映射</span>
-<span>5.5 Rewrite 功能</span></p></li></ol><p><span>参考视频：</span><a href='https://www.bilibili.com/video/BV1mQ4y1N7dn?p=10' target='_blank' class='url'>https://www.bilibili.com/video/BV1mQ4y1N7dn?p=10</a></p><ol start='' ><li><p><span>安装</span>
-<span>官网下载安装包（官网free 30 days）</span></p></li></ol><p><a href='https://www.charlesproxy.com/latest-release/download.do' target='_blank' class='url'>https://www.charlesproxy.com/latest-release/download.do</a></p><p><img src="./抓包.assets/e4921267bc883f3faf4572d974591eff.png" referrerpolicy="no-referrer" alt="img"></p><p><span>同意获取一个权限</span></p><p><img src="./抓包.assets/edd27e1b35ab0d243a4458ac49311f96.png" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/416ddee033d9bf09e5b5f97563795c95.png" referrerpolicy="no-referrer" alt="img"></p><p><span>打开App后显示如下界面：</span></p><p><img src="./抓包.assets/429d942c22550012435c113a7a1e29b1.png" referrerpolicy="no-referrer" alt="img"></p><ol start='2' ><li><p><span>工作原理</span></p><p><img src="./抓包.assets/a5b877d41ebb19c24182ca157dd92841.png" referrerpolicy="no-referrer" alt="img"></p></li></ol><h3 id='步骤'><span>步骤：</span></h3><p><span>1、客户端发送请求</span>
-<span>2、Charles接收再发送给服务端</span>
-<span>3、服务端返回请求结果给Charles</span>
-<span>4、由Charles转发给客户端</span></p><p>&nbsp;</p><ol start='3' ><li><h3 id='组件介绍'><span>组件介绍</span></h3></li></ol><p><img src="./抓包.assets/20c764bf87d7987fa42edcbb1601c832.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/4dd88af743658719408a953b0d630614.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/e740f4e035db352f40b5c399d0acd6d8.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/ba3d5fb70bd9362d707b3669464935b9.jpeg" referrerpolicy="no-referrer" alt="img"></p><ol start='4' ><li><h3 id='代理配置'><span>代理配置</span></h3><p><span>4.1 Charles 代理配置</span></p></li></ol><p><img src="./抓包.assets/55836ebc4d82f812bf4746e7e41e7c9e.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/e3f22e297133441d859a2a17099d4219.jpeg" referrerpolicy="no-referrer" alt="img"></p><p>&nbsp;</p><p><span>4.2 客户端-MacOS</span></p><p><img src="./抓包.assets/d4ee8ce044b44fb7163a9222173e729a.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/a69bdb3734df5a9153e39ecfe71eaeb9.jpeg" referrerpolicy="no-referrer" alt="img"></p><p>&nbsp;</p><p><span>4.2.1 代理配置</span>
-<span>当charles和所抓包web不在一台服务器</span></p><p><img src="./抓包.assets/83734be3629527d3d7b52a171598bf0f.png" referrerpolicy="no-referrer" alt="img"><span>系统偏好设置-网络-右下角的高级选项，将http和https均输入ip地址和端口号：</span></p><p><span>ip地址：哪台电脑安装的charles则输入哪台电脑的ip地址</span>
-<span>（在charles里可以查看电脑的ip地址）!</span></p><p><span>当charles和所抓包web在同一服务器</span></p><p>&nbsp;</p><p><span>4.2.2 证书配置</span>
-<span>在请求和响应中会显示乱码，在抓取内容界面显示unknown，则需要安装SSL证书，从而可以看到正确的报文信息</span></p><p><img src="./抓包.assets/c7a4aecae04e9eebd39e1015c873a341.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/83a7ee8f3071e0fc76089d08378b10fc.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><span>安装完后配置Charles</span></p><p>&nbsp;</p><p><img src="./抓包.assets/d197ef397e598485d79749d66d740b31.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><span>亲测有效！不再乱码！</span></p><p>&nbsp;</p><h3 id='43-客户端-ios'><span>4.3 客户端-IOS</span></h3><p><span>4.3.1 代理配置</span>
-<span>步骤：</span>
-<span>1、ios手机中选择“设置”-“无线局域网”</span>
-<span>2、点击已连接的无线网络名称</span>
-<span>3、在HTTP代理的配置代理中选择“手动”</span>
-<span>4、输入服务器IP地址及端口号</span></p><p><span>4.3.2 证书配置</span>
-<span>步骤：</span>
-<span>1、ios端设置好代理配置</span>
-<span>2、浏览器栏输入</span><a href='https://charlesproxy.com/getssl' target='_blank' class='url'>https://charlesproxy.com/getssl</a><span>下载并信任文件</span>
-<span>3、“通用”-“证书信任设置”-开启</span></p><ol start='5' ><li><p><span>使用</span>
-<span>5.1 抓包分析</span>
-<span>Charles代理配置-客户端代理配置-操作客户端软件-分析请求数据</span>
-<span>通过客户端软件发出的请求报文，在charles中观察请求和响应情况，判断错误的提示信息是由前端还是后端返回的，从而得出bug位置</span></p></li></ol><p><span>5.2 断点调试</span>
-<span>5.2.1 断点配置</span></p><p><img src="./抓包.assets/095f509427e85c84cfc0f55dbd797776.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><span>5.2.2 断点分析</span>
-<span>观察数据返回结果，判断bug位置是前端还是后端</span></p><p><span>5.3 弱网测试</span>
-<span>5.3.1 流量配置：模拟2G/3G/4G网络等</span></p><p><img src="./抓包.assets/fab0fbb5ea58c8eafe73bd45c46a3b8d.jpeg" referrerpolicy="no-referrer" alt="img"></p><h3 id='532-弱网测试'><span>5.3.2 弱网测试</span></h3><p><span>分析相关时间数据，响应时间慢</span>
-<span>分析页面展示状态，弱网状态下，APP加载慢，会不会导致崩溃</span>
-<span>5.4 map 功能</span>
-<span>重定向redirect：通过各种方法将各种网络请求重新定个方向转到其他位置</span>
-<span>重定向状态码：301</span>
-<span>map功能：将某个请求进行重定向，用重定向的内容来响应请求的内容</span>
-<span>作用：将某个接口重定向到指定的测试环境中，这样就可以测试一下效果如何了</span>
-<span>（1）map remote 远程映射</span>
-<span>将某个网络请求重定向到另一个网络请求</span></p><p><img src="./抓包.assets/9bb5eba01b1568425575e88f0ac76e6d.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><img src="./抓包.assets/0ef0a37ff16d3b6d1f296832d5adfc42.jpeg" referrerpolicy="no-referrer" alt="img"></p><p><span>（2） map local 本地映射</span>
-<span>将某个网络请求重定向到本地的某个文件</span></p><h3 id='55-rewrite-功能'><span>5.5 Rewrite 功能</span></h3><p><span>可用于修改请求和返回的工具，可以重写</span></p></div></div>
+
+<body>
+
+    <button class="mobile-toggle" onclick="toggleSidebar()">MENU</button>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="brand">
+            <h1>LENS & LIGHT</h1>
+            <p>专业影像交付系统</p>
+        </div>
+        <ul class="nav-list" id="client-list">
+        </ul>
+    </nav>
+
+    <main class="main-content" id="main-scroll">
+        <div id="dynamic-container">
+        </div>
+    </main>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <span class="close-lb">&times;</span>
+        <img id="lb-img" src="" alt="">
+    </div>
+
+    <script>
+        // ==========================================
+        // 💾 模拟数据库：这里放入了大量真实照片
+        // ==========================================
+        // const clientsData = [
+        //     {
+        //         id: "2023-WED-01",
+        //         name: "Sarah & Mike",
+        //         category: "Wedding 婚礼纪实",
+        //         date: "2023 Oct 15",
+        //         desc: "一场在加州秋日暖阳下的草坪婚礼。重点捕捉了宾客的情绪互动，以及新人在夕阳下的剪影。色调偏向柯达 Portra 400 的温暖胶片感。",
+        //         photos: [
+        //             "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1520854221256-17451cc330e7?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1519225448526-72995805e9e5?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1522673607200-1645062cd958?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=800&q=80"
+        //         ]
+        //     },
+        //     {
+        //         id: "2023-COM-05",
+        //         name: "NEON 潮牌",
+        //         category: "Commercial 商业",
+        //         date: "2023 Nov 02",
+        //         desc: "赛博朋克风格的夜景人像拍摄。利用街道的霓虹灯作为主光源，展现品牌的年轻与叛逆。高对比度，冷暖色调对冲。",
+        //         photos: [
+        //             "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80"
+        //         ]
+        //     },
+        //     {
+        //         id: "2023-ARCH-03",
+        //         name: "City Museum",
+        //         category: "Architecture 建筑",
+        //         date: "2023 Dec 10",
+        //         desc: "为市美术馆新馆拍摄的宣发图片。重点表现建筑的几何线条、混凝土质感以及光影在不同时间段的变化。极简构图。",
+        //         photos: [
+        //             "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1518352724948-729141894ed1?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1435575653489-b0873ec954e2?w=800&q=80"
+        //         ]
+        //     },
+        //     {
+        //         id: "2024-PORT-01",
+        //         name: "Lina's Portfolio",
+        //         category: "Portrait 人像写真",
+        //         date: "2024 Jan 05",
+        //         desc: "室内自然光写真。使用 85mm 镜头捕捉模特的眼神光，后期调整了肤色，使其呈现奶油般的通透感。",
+        //         photos: [
+        //             "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=800&q=80",
+        //             "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80"
+        //         ]
+        //     }
+        // ];
+        //   const clientsData = [
+        //         {
+        //             id: "2024-SELF-01",
+        //             name: "精修自拍系列",
+        //             category: "Portrait 个人写真",
+        //             date: "2024 MAR",
+        //             desc: "在不同场景下的精修人像作品，包含布鲁维斯号沉船等外景拍摄。注重光影氛围与后期质感。",
+        //             photos: [
+        //                 "https://drive.google.com/uc?export=view&id=1lyr3HXoFrhrCXQDgrWO1ezknoF37ykYt",
+        //                 "https://drive.google.com/uc?export=view&id=1u5lRcIjSM0UHYeN_nqoXpn-XS_ANlgPJ",
+        //                 "https://drive.google.com/uc?export=view&id=1-79NLL_M0OtPd-xrk_b0bIV89iA-mdH4",
+        //                 "https://drive.google.com/uc?export=view&id=17az0R-aYh9bw3KSUnjU_JnJL6_f7EfSX",
+        //                 "https://drive.google.com/uc?export=view&id=1MjutytWCFda5eKXMnEdAzow0FRaveMn0"
+        //             ]
+        //         },
+        //         {
+        //             id: "2024-NJ-02",
+        //             name: "南京纪实",
+        //             category: "Travel 旅拍",
+        //             date: "2024 FEB",
+        //             desc: "南京街头与室内的碎片记录。通过胶片色调还原古城的冬日氛围。",
+        //             photos: [
+        //                 "https://drive.google.com/uc?export=view&id=1HHRNGfUi531d1NxWCoUWqWF8WUSLXoIl",
+        //                 "https://drive.google.com/uc?export=view&id=1E1xIKzAqnz_ey19CiCV4R4zE0xjnNlti"
+        //             ]
+        //         },
+        //         {
+        //             id: "2024-RAW-03",
+        //             name: "日常随笔 (未命名)",
+        //             category: "Life 日常",
+        //             date: "2024 JAN",
+        //             desc: "富士相机直出的生活瞬间，保留了最真实的肤色与光线环境。",
+        //             photos: [
+        //                 "https://drive.google.com/uc?export=view&id=1ZgWBoVK2yOw6Azfp386p2tJb-Nlh-56X",
+        //                 "https://drive.google.com/uc?export=view&id=1HtB62ccYHhjmFI5Xr0MW-006oyok4Qe8",
+        //                 "https://drive.google.com/uc?export=view&id=1nPsW57z7vbC-wCjP7GnNxIVf49CPivEn",
+        //                 "https://drive.google.com/uc?export=view&id=13ocTwjo-dMNc4xRi7oCk4XWuzCf9IysY",
+        //                 "https://drive.google.com/uc?export=view&id=18s2Mw1DPRgIPeB3qOhIUWVwEcvg9lXVl",
+        //                 "https://drive.google.com/uc?export=view&id=1cThpWy5PSLR0CBQ-8KDTTEFCxmKztj6S",
+        //                 "https://drive.google.com/uc?export=view&id=1ZGNUaEkavu6L1pYNuUp5z4kOFcI4_zKF",
+        //                 "https://drive.google.com/uc?export=view&id=1Z_aHhLJ6VtZXPky6beg8KKbObSvVXoyQ",
+        //                 "https://drive.google.com/uc?export=view&id=1SQY5BDxeqz76pHMB5kbK_FV8Tcpn0otu",
+        //                 "https://drive.google.com/uc?export=view&id=1cCKLOt9XkpX-Xy5DikgCw7y2sIT3Ukm9",
+        //                 "https://drive.google.com/uc?export=view&id=1kmBnQ-1Mx9e4bMrIkzDKhyxVjQ_f4eBB",
+        //                 "https://drive.google.com/uc?export=view&id=1PLLosDbtjYR_KbmNuMjbuuIqu0xeJQUP",
+        //                 "https://drive.google.com/uc?export=view&id=1RP8DitsJCYQq3HuDp47LKHlqNwoQvJGM",
+        //                 "https://drive.google.com/uc?export=view&id=1qvVbDPUQGXEVcdNKPOCSQIcqHL0uKj-8",
+        //                 "https://drive.google.com/uc?export=view&id=1rmxPd4T7wRH1q3ntcLOWj2UZJ9vSR_RF",
+        //                 "https://drive.google.com/uc?export=view&id=15cwQdiL-fPNcRPx8nnjJ6hkSIVSWbq10",
+        //                 "https://drive.google.com/uc?export=view&id=1r4YriZONAqzJSGREuFxTFEp8rWrUfhCi",
+        //                 "https://drive.google.com/uc?export=view&id=1KR3elqoyy0iyfyZs3t0tMLMpLF1E3XiD"
+        //             ]
+        //         }
+        //     ];
+        const clientsData = [
+                {
+                    id: "2024-SELFIE-01",
+                    name: "精修自拍",
+                    category: "Portrait 写真",
+                    date: "2024 MAR",
+                    desc: "在不同场景下的精修作品，包含布鲁维斯号沉船等外景。网页加载使用的是预览加速链接。",
+                    // 存储对象数组：p 是预览小图，o 是高清原图
+                    photos: [
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1lyr3HXoFrhrCXQDgrWO1ezknoF37ykYt", o: "https://drive.google.com/uc?export=view&id=1lyr3HXoFrhrCXQDgrWO1ezknoF37ykYt" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1u5lRcIjSM0UHYeN_nqoXpn-XS_ANlgPJ", o: "https://drive.google.com/uc?export=view&id=1u5lRcIjSM0UHYeN_nqoXpn-XS_ANlgPJ" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1-79NLL_M0OtPd-xrk_b0bIV89iA-mdH4", o: "https://drive.google.com/uc?export=view&id=1-79NLL_M0OtPd-xrk_b0bIV89iA-mdH4" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=17az0R-aYh9bw3KSUnjU_JnJL6_f7EfSX", o: "https://drive.google.com/uc?export=view&id=17az0R-aYh9bw3KSUnjU_JnJL6_f7EfSX" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1MjutytWCFda5eKXMnEdAzow0FRaveMn0", o: "https://drive.google.com/uc?export=view&id=1MjutytWCFda5eKXMnEdAzow0FRaveMn0" }
+                    ]
+                },
+                {
+                    id: "2024-NJ-02",
+                    name: "南京系列",
+                    category: "Travel 旅拍",
+                    date: "2024 FEB",
+                    desc: "南京街头的碎片记录。",
+                    photos: [
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1HHRNGfUi531d1NxWCoUWqWF8WUSLXoIl", o: "https://drive.google.com/uc?export=view&id=1HHRNGfUi531d1NxWCoUWqWF8WUSLXoIl" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1E1xIKzAqnz_ey19CiCV4R4zE0xjnNlti", o: "https://drive.google.com/uc?export=view&id=1E1xIKzAqnz_ey19CiCV4R4zE0xjnNlti" }
+                    ]
+                },
+                {
+                    id: "2024-RAW-03",
+                    name: "未命名文件夹",
+                    category: "Life 纪实",
+                    date: "2024 JAN",
+                    desc: "生活中的原始瞬间。",
+                    photos: [
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1ZgWBoVK2yOw6Azfp386p2tJb-Nlh-56X", o: "https://drive.google.com/uc?export=view&id=1ZgWBoVK2yOw6Azfp386p2tJb-Nlh-56X" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1HtB62ccYHhjmFI5Xr0MW-006oyok4Qe8", o: "https://drive.google.com/uc?export=view&id=1HtB62ccYHhjmFI5Xr0MW-006oyok4Qe8" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1nPsW57z7vbC-wCjP7GnNxIVf49CPivEn", o: "https://drive.google.com/uc?export=view&id=1nPsW57z7vbC-wCjP7GnNxIVf49CPivEn" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=13ocTwjo-dMNc4xRi7oCk4XWuzCf9IysY", o: "https://drive.google.com/uc?export=view&id=13ocTwjo-dMNc4xRi7oCk4XWuzCf9IysY" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=18s2Mw1DPRgIPeB3qOhIUWVwEcvg9lXVl", o: "https://drive.google.com/uc?export=view&id=18s2Mw1DPRgIPeB3qOhIUWVwEcvg9lXVl" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1cThpWy5PSLR0CBQ-8KDTTEFCxmKztj6S", o: "https://drive.google.com/uc?export=view&id=1cThpWy5PSLR0CBQ-8KDTTEFCxmKztj6S" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1ZGNUaEkavu6L1pYNuUp5z4kOFcI4_zKF", o: "https://drive.google.com/uc?export=view&id=1ZGNUaEkavu6L1pYNuUp5z4kOFcI4_zKF" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1Z_aHhLJ6VtZXPky6beg8KKbObSvVXoyQ", o: "https://drive.google.com/uc?export=view&id=1Z_aHhLJ6VtZXPky6beg8KKbObSvVXoyQ" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1SQY5BDxeqz76pHMB5kbK_FV8Tcpn0otu", o: "https://drive.google.com/uc?export=view&id=1SQY5BDxeqz76pHMB5kbK_FV8Tcpn0otu" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1cCKLOt9XkpX-Xy5DikgCw7y2sIT3Ukm9", o: "https://drive.google.com/uc?export=view&id=1cCKLOt9XkpX-Xy5DikgCw7y2sIT3Ukm9" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1kmBnQ-1Mx9e4bMrIkzDKhyxVjQ_f4eBB", o: "https://drive.google.com/uc?export=view&id=1kmBnQ-1Mx9e4bMrIkzDKhyxVjQ_f4eBB" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1PLLosDbtjYR_KbmNuMjbuuIqu0xeJQUP", o: "https://drive.google.com/uc?export=view&id=1PLLosDbtjYR_KbmNuMjbuuIqu0xeJQUP" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1RP8DitsJCYQq3HuDp47LKHlqNwoQvJGM", o: "https://drive.google.com/uc?export=view&id=1RP8DitsJCYQq3HuDp47LKHlqNwoQvJGM" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1qvVbDPUQGXEVcdNKPOCSQIcqHL0uKj-8", o: "https://drive.google.com/uc?export=view&id=1qvVbDPUQGXEVcdNKPOCSQIcqHL0uKj-8" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1rmxPd4T7wRH1q3ntcLOWj2UZJ9vSR_RF", o: "https://drive.google.com/uc?export=view&id=1rmxPd4T7wRH1q3ntcLOWj2UZJ9vSR_RF" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=15cwQdiL-fPNcRPx8nnjJ6hkSIVSWbq10", o: "https://drive.google.com/uc?export=view&id=15cwQdiL-fPNcRPx8nnjJ6hkSIVSWbq10" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1r4YriZONAqzJSGREuFxTFEp8rWrUfhCi", o: "https://drive.google.com/uc?export=view&id=1r4YriZONAqzJSGREuFxTFEp8rWrUfhCi" },
+                        { p: "https://drive.google.com/thumbnail?sz=w1200&id=1KR3elqoyy0iyfyZs3t0tMLMpLF1E3XiD", o: "https://drive.google.com/uc?export=view&id=1KR3elqoyy0iyfyZs3t0tMLMpLF1E3XiD" }
+                    ]
+                }
+            ];
+        // ==========================================
+        // 🚀 逻辑处理
+        // ==========================================
+
+        const navList = document.getElementById('client-list');
+        const container = document.getElementById('dynamic-container');
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lb-img');
+        const mainScroll = document.getElementById('main-scroll');
+
+        // 1. 初始化侧边栏
+        function initSidebar() {
+            navList.innerHTML = '';
+            clientsData.forEach((client, index) => {
+                const li = document.createElement('li');
+                li.className = `nav-item ${index === 0 ? 'active' : ''}`;
+                li.onclick = () => loadClient(index);
+
+                li.innerHTML = `
+                    <div class="client-name">${client.name}</div>
+                    <div class="client-info">
+                        <span>${client.category.split(' ')[0]}</span>
+                        <span>${client.date.split(' ')[0]} ${client.date.split(' ')[1]}</span>
+                    </div>
+                `;
+                navList.appendChild(li);
+            });
+        }
+
+        // 2. 核心：加载客户数据
+        function loadClient(index) {
+            // 切换选中状态
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            navItems[index].classList.add('active');
+
+            // 移动端收起菜单
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+
+            const data = clientsData[index];
+
+            // 构建照片流 HTML (增加 onload 实现渐显效果)
+            const photosHtml = data.photos.map(photo => `
+                <div class="photo-card" onclick="openLightbox('${photo.o}')">
+                    <img src="${photo.p}" alt="photo" onload="this.classList.add('loaded')">
+                </div>
+            `).join('');
+
+            // 渲染内容
+            container.innerHTML = `
+                <header class="gallery-header">
+                    <div class="meta">
+                        <span>${data.category}</span>
+                        <span>//</span>
+                        <span>${data.date}</span>
+                    </div>
+                    <h2>${data.name}</h2>
+                    <p>${data.desc}</p>
+                </header>
+                
+                <div class="gallery-grid">
+                    ${photosHtml}
+                </div>
+
+                <div class="comment-wrapper">
+                    <div class="comment-header">
+                        <h3>客户留言 / Feedback</h3>
+                        <span style="font-size:0.8rem; color:#666;">PROJECT ID: ${data.id}</span>
+                    </div>
+                    <div style="background: #151515; padding: 20px; border-radius: 4px; text-align: center; color: #555;">
+                        <p>请在此处接入第三方评论系统 (如 Valine/Disqus)</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Current Page ID: ${data.id}</p>
+                    </div>
+                </div>
+            `;
+
+            // 滚动回顶部
+            mainScroll.scrollTop = 0;
+        }
+
+        // 3. 灯箱逻辑
+        function openLightbox(src) {
+            // 简单的将缩略图链接转为高清图 (这里Unsplash只要改参数即可)
+            // 实际项目中，你的缩略图和原图可能是两个不同的URL
+            lbImg.src = src;
+
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox(e) {
+            // 点击图片本身不关闭，点击背景才关闭
+            if (e.target !== lbImg) {
+                lightbox.classList.remove('active');
+                lbImg.src = ""; // 清空图片，防止下次打开闪烁
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // 启动
+        initSidebar();
+        loadClient(0); // 默认加载第一个
+
+    </script>
 </body>
+
 </html>
