@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIGHT & FRAME | NARRATIVE</title>
+    <style>
+        :root {
+            --sb-width: 280px;
+            --sb-collapsed: 68px;
+            --bg-dark: #0a0a0a;
+            --bg-panel: #141414;
+            --accent: #d4af37;
+            /* 香槟金 */
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: "Inter", -apple-system, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- 侧边栏 & 遮罩 --- */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 90;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .sidebar {
+            width: var(--sb-width);
+            background: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            transition: width var(--transition), transform var(--transition);
+            z-index: 100;
+            flex-shrink: 0;
+            border-right: 1px solid #222;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sb-collapsed);
+        }
+
+        .nav-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            height: 70px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .brand-box {
+            overflow: hidden;
+            white-space: nowrap;
+            margin-left: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar.collapsed .brand-box {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 10px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            color: #888;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #252525;
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: #1a1a1a;
+            color: var(--accent);
+        }
+
+        .nav-item svg {
+            min-width: 24px;
+            margin-right: 18px;
+        }
+
+        .nav-text {
+            transition: opacity 0.2s;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+        }
+
+        /* --- 主内容区 & 瀑布流 --- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+        }
+
+        .gallery-header {
+            max-width: 1200px;
+            margin: 40px auto 60px;
+            text-align: left;
+        }
+
+        .gallery-header h2 {
+            font-weight: 200;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .gallery-header p {
+            color: #666;
+            max-width: 600px;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .masonry-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            column-count: 3;
+            column-gap: 25px;
+        }
+
+        .photo-card {
+            break-inside: avoid;
+            margin-bottom: 25px;
+            background: #111;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .photo-card img.loaded {
+            opacity: 1;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* --- 响应式微调 --- */
+        @media (max-width: 1024px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                transform: translateX(-100%);
+                width: 280px !important;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                padding: 80px 20px 20px;
+            }
+
+            .masonry-grid {
+                column-count: 1;
+            }
+
+            .mobile-fab {
+                display: flex;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 80;
+                background: var(--bg-panel);
+                border: 1px solid #333;
+                padding: 10px;
+                border-radius: 12px;
+                cursor: pointer;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-fab {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="mobile-fab" onclick="toggleSidebar()">
+        <svg style="width:24px;height:24px;fill:#fff" viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+        </svg>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="nav-header">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <svg style="width:24px;height:24px;fill:#fff" viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </button>
+            <div class="brand-box">
+                <div style="font-weight: 200; font-size: 1rem; letter-spacing: 3px;">LIGHT & FRAME</div>
+                <div style="font-size: 0.6rem; color: var(--accent); letter-spacing: 4px; opacity: 0.8;">NARRATIVE</div>
+            </div>
+        </div>
+
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="loadCategory('landscape')">
+                <svg style="width:24px;height:24px;fill:currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                </svg>
+                <span class="nav-text">Mountains</span>
+            </li>
+            <li class="nav-item" onclick="loadCategory('city')">
+                <svg style="width:24px;height:24px;fill:currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M15 11V5l-3-3-3 3v2H3v14h18V11h-6zm-8 8H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2zm6 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm6 12h-2v-2h2v2zm0-4h-2v-2h2v2z" />
+                </svg>
+                <span class="nav-text">Urban Narrative</span>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content" id="main-content">
+        <header class="gallery-header">
+            <h2 id="cat-title">The Silent Narrative</h2>
+            <p id="cat-desc">构图是对混乱世界的提炼。在这里，光影不是背景，而是主角。每一帧都是一次关于空间的无声对话。</p>
+        </header>
+
+        <div class="masonry-grid" id="gallery">
+        </div>
+    </main>
+
+    <script>
+        const categories = {
+            landscape: {
+                title: "The Silent Narrative",
+                desc: "风景一直都在，我只是在进行构图。利用长焦压缩空间，捕捉山脉之间那层叠的呼吸感。",
+                images: [
+                    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1434725039720-bbad6fa30334?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1000"
+                ]
+            },
+            city: {
+                title: "Urban Geometry",
+                desc: "城市是钢筋水泥的森林，构图是寻找其中几何规律的眼睛。",
+                images: [
+                    "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000",
+                    "https://images.unsplash.com/photo-1470075801209-17f9ec0cada6?q=80&w=1000"
+                ]
+            }
+        };
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        function loadCategory(key) {
+            const cat = categories[key];
+            document.getElementById('cat-title').innerText = cat.title;
+            document.getElementById('cat-desc').innerText = cat.desc;
+
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = cat.images.map(img => `
+                <div class="photo-card">
+                    <img src="${img}" onload="this.classList.add('loaded')" alt="Photography">
+                </div>
+            `).join('');
+
+            // 更新侧边栏状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.innerText.includes(cat.title.split(' ')[0])) item.classList.add('active');
+            });
+
+            // 手机端自动收起
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+
+        // 初始化加载
+        window.onload = () => loadCategory('landscape');
+    </script>
+</body>
+
+</html>
