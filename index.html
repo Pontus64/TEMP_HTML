@@ -1,14 +1,1538 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>light-frame-narrative</title>
-    <script type="module" crossorigin src="./assets/index-BsKAUzFh.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-yElzayTn.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIGHT & FRAME | PORTFOLIO</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --top-nav-height: 64px;
+            --bg-dark: #0a0a0a;
+            --bg-panel: #141414;
+            --bg-hover: #1c1c1c;
+            --accent: #d4af37;
+            --accent-dim: rgba(212, 175, 55, 0.12);
+            --text-main: #f0f0f0;
+            --text-muted: #666;
+            --border: #1e1e1e;
+            --transition: 0.22s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ── */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--top-nav-height);
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 200;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            text-decoration: none;
+            flex-shrink: 0;
+            margin-right: 28px;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            transition: background 0.22s, border-color 0.22s, transform 0.3s;
+        }
+
+        .nav-logo:hover .logo-icon {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: rgba(212, 175, 55, 0.45);
+            transform: rotate(12deg);
+        }
+
+        .logo-icon.drawer-open {
+            background: rgba(212, 175, 55, 0.28) !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+            transform: none !important;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1;
+            gap: 3px;
+        }
+
+        .logo-wordmark {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .logo-tagline {
+            font-size: 0.58rem;
+            letter-spacing: 3.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 300;
+            opacity: 0.85;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .nav-link {
+            position: relative;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 400;
+            padding: 6px 13px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: color 0.22s, background 0.22s;
+            white-space: nowrap;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+            background: var(--bg-hover);
+        }
+
+        .nav-link.active {
+            color: var(--text-main);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .nav-link svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            opacity: 0.5;
+            transition: transform 0.2s;
+        }
+
+        .nav-link:hover svg {
+            transform: rotate(180deg);
+        }
+
+        .nav-tab-mobile {
+            display: none;
+        }
+
+        .nav-tab-trigger {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            outline: none;
+            flex-shrink: 0;
+        }
+
+        .nav-tab-trigger svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            opacity: 0.6;
+            transition: transform 0.25s;
+        }
+
+        .nav-tab-trigger.open svg {
+            transform: rotate(180deg);
+        }
+
+        .nav-tab-dropdown {
+            position: absolute;
+            top: calc(var(--top-nav-height) + 4px);
+            left: 60px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 160px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 300;
+        }
+
+        .nav-tab-dropdown.open {
+            display: block;
+        }
+
+        .nav-tab-dropdown-item {
+            padding: 12px 18px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab-dropdown-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .nav-tab-dropdown-item.active {
+            color: var(--accent);
+        }
+
+        .nav-tab-dropdown-item .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+            opacity: 0;
+        }
+
+        .nav-tab-dropdown-item.active .dot {
+            opacity: 1;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .nav-search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 5;
+            width: 200px;
+            height: 34px;
+        }
+
+        .nav-search-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 7px 36px 7px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.83rem;
+            outline: none;
+            color-scheme: dark;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s;
+        }
+
+        .nav-search-input::placeholder {
+            color: #3a3a3a;
+        }
+
+        .nav-search-wrap.expanded .nav-search-input {
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.07);
+        }
+
+        .nav-search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            display: flex;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .nav-search-icon svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
+
+        .nav-search-wrap.expanded .nav-search-icon {
+            display: none;
+        }
+
+        .nav-search-close {
+            position: absolute;
+            left: calc(var(--expanded-width, 100%) - 26px);
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            display: none;
+            cursor: pointer;
+            transition: color 0.15s;
+            z-index: 2;
+        }
+
+        .nav-search-close:hover {
+            color: var(--accent);
+        }
+
+        .nav-search-close svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            display: block;
+        }
+
+        .nav-search-wrap.expanded .nav-search-close {
+            display: flex;
+        }
+
+        .nav-create,
+        .nav-icon-btn,
+        .nav-avatar {
+            transition: opacity 0.25s, visibility 0.25s;
+        }
+
+        .nav-right.search-active .nav-create,
+        .nav-right.search-active .nav-icon-btn,
+        .nav-right.search-active .nav-avatar {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .nav-search-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 100%;
+            min-width: 260px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+            z-index: 400;
+        }
+
+        .nav-search-wrap.expanded .nav-search-dropdown {
+            width: var(--expanded-width, 100%);
+        }
+
+        .nav-search-dropdown.open {
+            display: block;
+        }
+
+        .search-drop-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px 8px;
+        }
+
+        .search-drop-header span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .search-drop-clear {
+            font-size: 0.78rem;
+            color: var(--accent);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .search-drop-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0 16px;
+        }
+
+        .search-history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 0.86rem;
+            color: #aaa;
+            transition: background 0.15s;
+        }
+
+        .search-history-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .search-history-item svg {
+            width: 13px;
+            height: 13px;
+            fill: currentColor;
+            opacity: 0.35;
+            flex-shrink: 0;
+        }
+
+        .nav-create {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent);
+            color: #0a0a0a;
+            border: none;
+            padding: 7px 15px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: filter 0.2s, opacity 0.25s, visibility 0.25s, background 0.3s;
+        }
+
+        .nav-create:hover {
+            filter: brightness(1.1);
+        }
+
+        .nav-create svg {
+            width: 13px;
+            height: 13px;
+            fill: currentColor;
+        }
+
+        .nav-icon-btn {
+            position: relative;
+            width: 34px;
+            height: 34px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .nav-icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 15px;
+            height: 15px;
+            background: #c0392b;
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+            font-size: 0.5rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: border-color 0.22s;
+        }
+
+        .nav-avatar:hover {
+            border-color: var(--accent);
+        }
+
+        .nav-avatar svg {
+            width: 19px;
+            height: 19px;
+            fill: #444;
+        }
+
+        /* ── PAGE BODY ── */
+        .app-container {
+            margin-top: var(--top-nav-height);
+            min-height: calc(100vh - var(--top-nav-height));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-hint {
+            color: #252525;
+            user-select: none;
+        }
+
+        .empty-hint p {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ════════════════════════════════
+           LEFT-SIDE DRAWER
+        ════════════════════════════════ */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 360px;
+            max-width: 100vw;
+            background: #0f0f0f;
+            border-right: 1px solid #1e1e1e;
+            box-shadow: 24px 0 64px rgba(0, 0, 0, 0.75);
+            z-index: 501;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px 15px;
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+        }
+
+        .drawer-title-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .drawer-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .drawer-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid #232323;
+            background: transparent;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .drawer-close:hover {
+            background: #1c1c1c;
+            color: var(--text-main);
+        }
+
+        .drawer-close svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .drawer-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 20px 28px;
+        }
+
+        .drawer-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .drawer-scroll::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 3px;
+        }
+
+        /* Section header */
+        .sec-head {
+            font-size: 0.67rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #3e3e3e;
+            margin: 20px 0 11px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sec-head::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #191919;
+        }
+
+        /* ── PRESETS ── */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+        }
+
+        .preset-card {
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s, transform 0.18s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .preset-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .preset-card.selected {
+            border-color: var(--accent);
+        }
+
+        .preset-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            right: 5px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #000;
+            background: var(--accent);
+            border-radius: 50%;
+            width: 13px;
+            height: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preset-swatch {
+            height: 34px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .preset-name {
+            padding: 6px 5px 7px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* ── ACCENT DOTS ── */
+        .accent-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .ac-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+            flex-shrink: 0;
+        }
+
+        .ac-dot:hover {
+            transform: scale(1.14);
+        }
+
+        .ac-dot.selected {
+            border-color: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .ac-dot-pencil {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1c1c1c;
+            border: 2px solid #282828;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+
+        .ac-dot-pencil:hover {
+            background: #222;
+            color: #888;
+        }
+
+        .ac-dot-pencil.active-picker {
+            border-color: var(--accent);
+        }
+
+        .ac-dot-pencil svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        /* ── COLOR ROWS ── */
+        .cr-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid #151515;
+        }
+
+        .cr-item:last-child {
+            border-bottom: none;
+        }
+
+        .cr-label {
+            font-size: 0.82rem;
+            color: #888;
+        }
+
+        .cr-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cr-hex {
+            font-size: 0.73rem;
+            font-family: 'Courier New', monospace;
+            color: #484848;
+            letter-spacing: 0.5px;
+        }
+
+        .cr-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+
+        .cr-dot:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .cr-dot.active-picker {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        /* ── INLINE PICKER ── */
+        .ipicker {
+            display: none;
+        }
+
+        .ipicker.open {
+            display: block;
+            animation: ipIn 0.2s ease;
+        }
+
+        @keyframes ipIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .ipicker-inner {
+            background: #121212;
+            border: 1px solid #1e1e1e;
+            border-radius: 12px;
+            padding: 13px;
+            margin: 5px 0 8px;
+        }
+
+        .p-grad {
+            position: relative;
+            width: 100%;
+            height: 128px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: crosshair;
+            margin-bottom: 10px;
+        }
+
+        .p-grad canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .p-cursor {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.4);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .p-hue {
+            position: relative;
+            height: 11px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 9px;
+        }
+
+        .p-hue canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .p-hue-th {
+            position: absolute;
+            top: 50%;
+            width: 15px;
+            height: 15px;
+            border: 2.5px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .p-alpha {
+            position: relative;
+            height: 11px;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .p-alpha-bg {
+            position: absolute;
+            inset: 0;
+            background: repeating-conic-gradient(#2a2a2a 0% 25%, #181818 0% 50%) 0 0/7px 7px;
+        }
+
+        .p-alpha canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .p-alpha-th {
+            position: absolute;
+            top: 50%;
+            width: 15px;
+            height: 15px;
+            border: 2.5px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .p-foot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .p-prev {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background: repeating-conic-gradient(#2a2a2a 0% 25%, #181818 0% 50%) 0 0/7px 7px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .p-prev-color {
+            position: absolute;
+            inset: 0;
+        }
+
+        .p-hex {
+            flex: 1;
+            background: #0c0c0c;
+            border: 1px solid #1e1e1e;
+            color: var(--text-main);
+            padding: 6px 9px;
+            border-radius: 7px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.79rem;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: border-color 0.2s;
+        }
+
+        .p-hex:focus {
+            border-color: rgba(212, 175, 55, 0.35);
+        }
+
+        .p-ok {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 7px;
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: filter 0.15s;
+        }
+
+        .p-ok:hover {
+            filter: brightness(1.1);
+        }
+
+        /* ── FONT LIST ── */
+        .font-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .font-item {
+            padding: 9px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+            border: 1px solid #191919;
+            background: transparent;
+            transition: background 0.15s, border-color 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .font-item:hover {
+            background: #161616;
+            border-color: #242424;
+        }
+
+        .font-item.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .font-item-name {
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+
+        .font-item.selected .font-item-name {
+            color: var(--accent);
+        }
+
+        .font-item-sub {
+            font-size: 0.74rem;
+            color: #444;
+        }
+
+        /* ── RESET ── */
+        .reset-btn {
+            width: 100%;
+            margin-top: 18px;
+            background: transparent;
+            border: 1px solid #1e1e1e;
+            color: #484848;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .reset-btn:hover {
+            background: #161616;
+            color: var(--text-main);
+            border-color: #2e2e2e;
+        }
+
+        .reset-btn svg {
+            width: 13px;
+            height: 13px;
+            fill: currentColor;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .logo-text {
+                display: none;
+            }
+
+            .nav-logo {
+                margin-right: 16px;
+            }
+
+            .nav-create span {
+                display: none;
+            }
+
+            .nav-create {
+                padding: 7px 10px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .top-navbar {
+                padding: 0 14px;
+            }
+
+            .nav-logo {
+                margin-right: 4px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-tab-mobile {
+                display: flex;
+                align-items: center;
+            }
+
+            .nav-search-wrap {
+                width: 120px;
+            }
+
+            .drawer {
+                width: 100vw;
+                border-right: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-navbar">
+        <a class="nav-logo" id="logoBtn" onclick="toggleDrawer(event)">
+            <div class="logo-icon" id="logoIcon">📷</div>
+            <div class="logo-text">
+                <span class="logo-wordmark">Light &amp; Frame</span>
+                <span class="logo-tagline">Narrative</span>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a class="nav-link" onclick="setActive(this)">首页</a>
+            <a class="nav-link active" onclick="setActive(this)">Notes</a>
+            <a class="nav-link" onclick="setActive(this)">机位</a>
+            <a class="nav-link" onclick="setActive(this)">更多 <svg viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z" />
+                </svg></a>
+        </nav>
+
+        <div class="nav-tab-mobile" id="mobileTabArea">
+            <button class="nav-tab-trigger" id="tabTrigger" onclick="toggleTabDropdown()">
+                <span id="tabTriggerLabel">Notes</span>
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z" />
+                </svg>
+            </button>
+            <div class="nav-tab-dropdown" id="tabDropdown">
+                <div class="nav-tab-dropdown-item" onclick="selectMobileTab(this,'首页')"><span class="dot"></span>首页
+                </div>
+                <div class="nav-tab-dropdown-item active" onclick="selectMobileTab(this,'Notes')"><span
+                        class="dot"></span>Notes</div>
+                <div class="nav-tab-dropdown-item" onclick="selectMobileTab(this,'机位地图')"><span class="dot"></span>机位地图
+                </div>
+                <div class="nav-tab-dropdown-item" onclick="selectMobileTab(this,'更多')"><span class="dot"></span>更多
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-right" id="navRight">
+            <div class="nav-search-wrap" id="searchWrap">
+                <input class="nav-search-input" id="searchInput" type="text" placeholder="搜索文章 / 小册 / 标签 / 用户"
+                    onfocus="expandSearch()" oninput="handleSearchInput(this.value)"
+                    onkeydown="if(event.key==='Escape')collapseSearch()">
+                <span class="nav-search-icon"><svg viewBox="0 0 24 24">
+                        <path
+                            d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg></span>
+                <span class="nav-search-close" onclick="collapseSearch()"><svg viewBox="0 0 24 24">
+                        <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                    </svg></span>
+                <div class="nav-search-dropdown" id="searchDropdown">
+                    <div class="search-drop-header"><span>搜索历史</span><button class="search-drop-clear"
+                            onclick="clearHistory()">清空</button></div>
+                    <div class="search-drop-divider"></div>
+                    <div id="historyList">
+                        <div class="search-history-item" onclick="fillSearch(this)"><svg viewBox="0 0 24 24">
+                                <path
+                                    d="M13 3a9 9 0 1 0 .001 18.001A9 9 0 0 0 13 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z" />
+                            </svg>冰岛极光拍摄技巧</div>
+                        <div class="search-history-item" onclick="fillSearch(this)"><svg viewBox="0 0 24 24">
+                                <path
+                                    d="M13 3a9 9 0 1 0 .001 18.001A9 9 0 0 0 13 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z" />
+                            </svg>东京街拍机位推荐</div>
+                    </div>
+                </div>
+            </div>
+            <button class="nav-create" id="createBtn"><svg viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg><span>创作</span></button>
+            <div class="nav-icon-btn"><svg viewBox="0 0 24 24">
+                    <path
+                        d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z" />
+                </svg><span class="nav-badge">3</span></div>
+            <div class="nav-avatar"><svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg></div>
+        </div>
+    </header>
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div class="drawer-title-row">
+                <span style="font-size:1.1rem">🎨</span>
+                <span class="drawer-title">主题定制</span>
+            </div>
+            <button class="drawer-close" onclick="closeDrawer()">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+            </button>
+        </div>
+        <div class="drawer-scroll" id="drawerScroll">
+            <div class="sec-head">配色方案</div>
+            <div class="preset-grid" id="presetGrid"></div>
+
+            <div class="sec-head">强调色</div>
+            <div class="accent-row" id="accentRow"></div>
+            <div id="accentPickerSlot"></div>
+
+            <div class="sec-head">背景颜色</div>
+            <div id="bgRows"></div>
+
+            <div class="sec-head">文字颜色</div>
+            <div id="textRows"></div>
+
+            <div class="sec-head">边框颜色</div>
+            <div id="borderRows"></div>
+
+            <div class="sec-head">字体</div>
+            <div class="font-list" id="fontList"></div>
+
+            <button class="reset-btn" onclick="resetAll()">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                </svg>
+                恢复默认
+            </button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="empty-hint">
+            <p>— 点击左上角 Logo 定制主题 —</p>
+        </div>
+    </div>
+
+    <script>
+        /* DATA */
+        const PRESETS = [
+            { name: '深黑', key: 'p0', bg: '#0a0a0a', panel: '#141414', hover: '#1c1c1c', accent: '#d4af37', textMain: '#f0f0f0', textMuted: '#666', border: '#1e1e1e' },
+            { name: '雪白', key: 'p1', bg: '#f4f4f2', panel: '#eaeae8', hover: '#e0e0de', accent: '#1a1a1a', textMain: '#111', textMuted: '#888', border: '#ddd' },
+            { name: '暖调', key: 'p2', bg: '#191008', panel: '#221a0e', hover: '#2d2212', accent: '#e8944a', textMain: '#f2e8d8', textMuted: '#7a6555', border: '#2e2418' },
+            { name: '石板', key: 'p3', bg: '#0e1219', panel: '#161d27', hover: '#1d2535', accent: '#5b9cf6', textMain: '#d8e4f5', textMuted: '#4d6080', border: '#1c2638' },
+            { name: '森林', key: 'p4', bg: '#060e08', panel: '#0c1a0e', hover: '#112418', accent: '#4ecb7a', textMain: '#d0edda', textMuted: '#3a6a4a', border: '#0f2218' },
+            { name: '霓虹', key: 'p5', bg: '#060612', panel: '#0d0d22', hover: '#14143a', accent: '#00f5d4', textMain: '#e0e0ff', textMuted: '#4455aa', border: '#1a1a38' },
+            { name: '玫瑰', key: 'p6', bg: '#110810', panel: '#1e0e1c', hover: '#2a1428', accent: '#e8609a', textMain: '#f5e0f0', textMuted: '#664455', border: '#251522' },
+            { name: '赤铜', key: 'p7', bg: '#0e0908', panel: '#1a1310', hover: '#231a16', accent: '#b5663c', textMain: '#f0e0d5', textMuted: '#7a5545', border: '#261b17' },
+        ];
+        const ACCENT_PRESETS = ['#d4af37', '#a0aec0', '#f0706a', '#3cd4c8', '#52c97e', '#a98ede'];
+        const VAR_GROUPS = {
+            bg: [{ key: '--bg-dark', label: '主背景' }, { key: '--bg-panel', label: '面板色' }, { key: '--bg-hover', label: '悬停色' }],
+            text: [{ key: '--text-main', label: '主文字' }, { key: '--text-muted', label: '次文字' }],
+            border: [{ key: '--border', label: '边框色' }]
+        };
+        const FONTS = [
+            { name: 'Cormorant Garamond', val: "'Cormorant Garamond',serif", sub: '优雅衬线体' },
+            { name: 'Playfair Display', val: "'Playfair Display',serif", sub: '经典衬线体' },
+            { name: 'DM Sans', val: "'DM Sans',sans-serif", sub: '简洁无衬线' },
+            { name: 'Georgia', val: 'Georgia,serif', sub: '传统衬线体' },
+            { name: 'Courier New', val: "'Courier New',monospace", sub: '等宽字体' },
+        ];
+
+        /* UTILS */
+        const gv = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+        const sv = (k, v) => document.documentElement.style.setProperty(k, v);
+        function hsvToRgb(h, s, v) {
+            const i = Math.floor(h / 60) % 6, f = h / 60 - Math.floor(h / 60), p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+            let r, g, b;
+            if (i === 0) { r = v; g = t; b = p } else if (i === 1) { r = q; g = v; b = p } else if (i === 2) { r = p; g = v; b = t }
+            else if (i === 3) { r = p; g = q; b = v } else if (i === 4) { r = t; g = p; b = v } else { r = v; g = p; b = q }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+        function rgbToHsv(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+            let h, s = max ? d / max : 0, v = max;
+            if (!d) h = 0; else if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6; else if (max === g) h = ((b - r) / d + 2) / 6; else h = ((r - g) / d + 4) / 6;
+            return { h: h * 360, s, v, a: 1 };
+        }
+        function r2h(r, g, b) { return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join(''); }
+        function h2r(hex) {
+            hex = hex.replace('#', ''); if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
+        }
+        function c2h(val) {
+            val = val.trim();
+            if (val.startsWith('#')) return val.slice(0, 7);
+            const m = val.match(/rgba?\s*\((\d+),\s*(\d+),\s*(\d+)/);
+            return m ? r2h(+m[1], +m[2], +m[3]) : '#888888';
+        }
+        function pid(k) { return k.replace(/--/g, '').replace(/-/g, '_'); }
+
+        /* PICKER STATE */
+        let HSV = { h: 45, s: .55, v: .83, a: 1 }, APid = null, AVarKey = null, DG = false, DH = false, DA = false;
+
+        /* BUILD */
+        function buildAll() { buildPresets(); buildAccents(); buildVarGroup('bgRows', VAR_GROUPS.bg); buildVarGroup('textRows', VAR_GROUPS.text); buildVarGroup('borderRows', VAR_GROUPS.border); buildFonts(); }
+
+        function buildPresets() {
+            const g = document.getElementById('presetGrid'); g.innerHTML = '';
+            PRESETS.forEach(p => {
+                const c = document.createElement('div'); c.className = 'preset-card'; c.dataset.key = p.key;
+                c.innerHTML = `<div class="preset-swatch"><div style="background:${p.bg}"></div><div style="background:${p.panel}"></div><div style="background:${p.accent}"></div></div><div class="preset-name" style="background:${p.bg};color:${p.textMain}">${p.name}</div>`;
+                c.onclick = () => applyPreset(p.key); g.appendChild(c);
+            });
+            markPreset('p0');
+        }
+        function applyPreset(key) {
+            const p = PRESETS.find(x => x.key === key); if (!p) return;
+            sv('--bg-dark', p.bg); sv('--bg-panel', p.panel); sv('--bg-hover', p.hover); sv('--accent', p.accent);
+            sv('--text-main', p.textMain); sv('--text-muted', p.textMuted); sv('--border', p.border);
+            syncDim(p.accent); markPreset(key); refreshAllDots(); syncAccentDotSel(p.accent); closeAllPickers();
+        }
+        function syncDim(hex) { try { const [r, g, b] = h2r(hex); sv('--accent-dim', `rgba(${r},${g},${b},0.12)`); } catch (e) { } }
+        function markPreset(key) { document.querySelectorAll('.preset-card').forEach(c => c.classList.toggle('selected', c.dataset.key === key)); }
+
+        function buildAccents() {
+            const row = document.getElementById('accentRow'); row.innerHTML = '';
+            ACCENT_PRESETS.forEach(col => {
+                const d = document.createElement('div'); d.className = 'ac-dot'; d.style.background = col; d.dataset.c = col;
+                if (col.toLowerCase() === c2h(gv('--accent')).toLowerCase()) d.classList.add('selected');
+                d.onclick = () => { sv('--accent', col); syncDim(col); syncAccentDotSel(col); markPreset(''); refreshAllDots(); };
+                row.appendChild(d);
+            });
+            const pen = document.createElement('div'); pen.className = 'ac-dot-pencil'; pen.id = 'acPen';
+            pen.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+            pen.onclick = () => {
+                const slot = document.getElementById('accentPickerSlot');
+                if (slot.querySelector('.ipicker.open')) { closeAllPickers(); return; }
+                closeAllPickers();
+                const hex = c2h(gv('--accent')); const [r, g, b] = h2r(hex); HSV = { ...rgbToHsv(r, g, b), a: 1 };
+                APid = 'acpick'; AVarKey = '--accent'; pen.classList.add('active-picker');
+                slot.innerHTML = `<div class="ipicker open" id="ipicker-acpick"><div class="ipicker-inner">${pickerHTML('acpick')}</div></div>`;
+                requestAnimationFrame(() => { initC('acpick'); updateUI(); });
+            };
+            row.appendChild(pen);
+        }
+        function syncAccentDotSel(hex) {
+            hex = hex.toLowerCase();
+            document.querySelectorAll('.ac-dot').forEach(d => d.classList.toggle('selected', c2h(d.dataset.c).toLowerCase() === hex));
+        }
+
+        function buildVarGroup(containerId, items) {
+            const wrap = document.getElementById(containerId); wrap.innerHTML = '';
+            items.forEach(item => {
+                const id = pid(item.key), hex = c2h(gv(item.key)), div = document.createElement('div');
+                div.innerHTML = `<div class="cr-item"><span class="cr-label">${item.label}</span><div class="cr-right"><span class="cr-hex" id="hex-${id}">${hex.toUpperCase()}</span><div class="cr-dot" id="dot-${id}" style="background:${hex}" onclick="togglePicker('${item.key}','${id}')"></div></div></div><div class="ipicker" id="ipicker-${id}"><div class="ipicker-inner">${pickerHTML(id)}</div></div>`;
+                wrap.appendChild(div);
+            });
+        }
+
+        function pickerHTML(id) {
+            return `<div class="p-grad" id="pg-${id}"><canvas id="pgc-${id}"></canvas><div class="p-cursor" id="pgcu-${id}"></div></div>
+    <div class="p-hue" id="ph-${id}"><canvas id="phc-${id}"></canvas><div class="p-hue-th" id="pht-${id}"></div></div>
+    <div class="p-alpha" id="pa-${id}"><div class="p-alpha-bg"></div><canvas id="pac-${id}"></canvas><div class="p-alpha-th" id="pat-${id}"></div></div>
+    <div class="p-foot"><div class="p-prev"><div class="p-prev-color" id="ppc-${id}"></div></div><input class="p-hex" id="phi-${id}" type="text" maxlength="9" oninput="onHI(this,'${id}')" onkeydown="if(event.key==='Enter')applyC('${id}')"><button class="p-ok" onclick="applyC('${id}')">应用</button></div>`;
+        }
+
+        function buildFonts() {
+            const list = document.getElementById('fontList'); list.innerHTML = '';
+            FONTS.forEach(f => {
+                const item = document.createElement('div'); item.className = 'font-item'; item.dataset.v = f.val;
+                if (f.val === "'DM Sans',sans-serif") item.classList.add('selected');
+                item.innerHTML = `<span class="font-item-name" style="font-family:${f.val}">${f.name}</span><span class="font-item-sub">${f.sub}</span>`;
+                item.onclick = () => { document.querySelectorAll('.font-item').forEach(i => i.classList.remove('selected')); item.classList.add('selected'); document.body.style.fontFamily = f.val; };
+                list.appendChild(item);
+            });
+        }
+
+        /* PICKER */
+        function togglePicker(varKey, id) {
+            const pic = document.getElementById('ipicker-' + id), dot = document.getElementById('dot-' + id);
+            const was = pic.classList.contains('open'); closeAllPickers();
+            if (!was) {
+                APid = id; AVarKey = varKey;
+                const hex = c2h(gv(varKey)); const [r, g, b] = h2r(hex); HSV = { ...rgbToHsv(r, g, b), a: 1 };
+                pic.classList.add('open'); dot.classList.add('active-picker');
+                requestAnimationFrame(() => { initC(id); updateUI(); });
+            }
+        }
+        function closeAllPickers() {
+            document.querySelectorAll('.ipicker.open').forEach(p => p.classList.remove('open'));
+            document.querySelectorAll('.cr-dot.active-picker').forEach(d => d.classList.remove('active-picker'));
+            const pen = document.getElementById('acPen'); if (pen) pen.classList.remove('active-picker');
+            const slot = document.getElementById('accentPickerSlot'); if (slot && !slot.querySelector('.cr-dot')) slot.innerHTML = '';
+            APid = null; AVarKey = null;
+        }
+        function initC(id) { drawG(id); drawH(id); drawA(id); }
+        function drawG(id) {
+            const c = document.getElementById('pgc-' + id); if (!c) return;
+            const w = c.parentElement; c.width = w.offsetWidth; c.height = w.offsetHeight;
+            const ctx = c.getContext('2d'); const [r, g, b] = hsvToRgb(HSV.h, 1, 1);
+            const gh = ctx.createLinearGradient(0, 0, c.width, 0); gh.addColorStop(0, '#fff'); gh.addColorStop(1, `rgb(${r},${g},${b})`);
+            ctx.fillStyle = gh; ctx.fillRect(0, 0, c.width, c.height);
+            const gv2 = ctx.createLinearGradient(0, 0, 0, c.height); gv2.addColorStop(0, 'rgba(0,0,0,0)'); gv2.addColorStop(1, '#000');
+            ctx.fillStyle = gv2; ctx.fillRect(0, 0, c.width, c.height);
+        }
+        function drawH(id) {
+            const c = document.getElementById('phc-' + id); if (!c) return;
+            c.width = c.offsetWidth; c.height = c.offsetHeight;
+            const ctx = c.getContext('2d'), g = ctx.createLinearGradient(0, 0, c.width, 0);
+            [0, 60, 120, 180, 240, 300, 360].forEach(h => { const [r, gg, b] = hsvToRgb(h, 1, 1); g.addColorStop(h / 360, `rgb(${r},${gg},${b})`); });
+            ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height);
+        }
+        function drawA(id) {
+            const c = document.getElementById('pac-' + id); if (!c) return;
+            c.width = c.offsetWidth; c.height = c.offsetHeight;
+            const ctx = c.getContext('2d'); const [r, g, b] = hsvToRgb(HSV.h, HSV.s, HSV.v);
+            const grad = ctx.createLinearGradient(0, 0, c.width, 0);
+            grad.addColorStop(0, `rgba(${r},${g},${b},0)`); grad.addColorStop(1, `rgba(${r},${g},${b},1)`);
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, c.width, c.height);
+        }
+        function updateUI() {
+            const id = APid; if (!id) return;
+            const hex = curHex();
+            const gc = document.getElementById('pgc-' + id), gcu = document.getElementById('pgcu-' + id);
+            if (gc && gcu) { gcu.style.left = HSV.s * gc.width + 'px'; gcu.style.top = (1 - HSV.v) * gc.height + 'px'; }
+            const hc = document.getElementById('phc-' + id), ht = document.getElementById('pht-' + id);
+            if (hc && ht) { ht.style.left = (HSV.h / 360) * hc.width + 'px'; ht.style.top = hc.height / 2 + 'px'; }
+            const ac = document.getElementById('pac-' + id), at = document.getElementById('pat-' + id);
+            if (ac && at) { at.style.left = HSV.a * ac.width + 'px'; at.style.top = ac.height / 2 + 'px'; }
+            const pc = document.getElementById('ppc-' + id); if (pc) pc.style.background = curRgba();
+            const hi = document.getElementById('phi-' + id); if (hi && document.activeElement !== hi) hi.value = hex.toUpperCase();
+            drawA(id);
+        }
+        function curHex() { const [r, g, b] = hsvToRgb(HSV.h, HSV.s, HSV.v); return r2h(r, g, b); }
+        function curRgba() { const [r, g, b] = hsvToRgb(HSV.h, HSV.s, HSV.v); return `rgba(${r},${g},${b},${HSV.a})`; }
+        function applyC(id) {
+            if (!AVarKey) return;
+            const col = HSV.a < 1 ? curRgba() : curHex();
+            sv(AVarKey, col);
+            if (AVarKey === '--accent') { syncDim(col); syncAccentDotSel(col); }
+            refreshDot(AVarKey, id); markPreset('');
+        }
+        function refreshDot(varKey, id) {
+            const d = document.getElementById('dot-' + id), h = document.getElementById('hex-' + id);
+            const val = gv(varKey), hex = c2h(val);
+            if (d) d.style.background = val; if (h) h.textContent = hex.toUpperCase();
+        }
+        function refreshAllDots() {
+            [...VAR_GROUPS.bg, ...VAR_GROUPS.text, ...VAR_GROUPS.border].forEach(item => refreshDot(item.key, pid(item.key)));
+        }
+        function onHI(input, id) {
+            let v = input.value.trim(); if (!v.startsWith('#')) v = '#' + v;
+            if (/^#[0-9a-fA-F]{6}$/.test(v)) { const [r, g, b] = h2r(v); HSV = { ...rgbToHsv(r, g, b), a: HSV.a }; drawG(id); updateUI(); }
+        }
+
+        /* POINTER */
+        document.addEventListener('mousedown', e => {
+            if (!APid) return;
+            const gw = document.getElementById('pg-' + APid), hw = document.getElementById('ph-' + APid), aw = document.getElementById('pa-' + APid);
+            if (gw && gw.contains(e.target)) { DG = true; doG(e); } else if (hw && hw.contains(e.target)) { DH = true; doHue(e); } else if (aw && aw.contains(e.target)) { DA = true; doAl(e); }
+        }, true);
+        document.addEventListener('mousemove', e => { if (!APid) return; if (DG) doG(e); else if (DH) doHue(e); else if (DA) doAl(e); }, true);
+        document.addEventListener('mouseup', () => { DG = DH = DA = false; }, true);
+        document.addEventListener('touchstart', e => {
+            if (!APid) return; const t = e.touches[0];
+            const gw = document.getElementById('pg-' + APid), hw = document.getElementById('ph-' + APid), aw = document.getElementById('pa-' + APid);
+            if (gw && gw.contains(e.target)) { DG = true; doG(t); } else if (hw && hw.contains(e.target)) { DH = true; doHue(t); } else if (aw && aw.contains(e.target)) { DA = true; doAl(t); }
+        }, { passive: true });
+        document.addEventListener('touchmove', e => { if (!APid) return; const t = e.touches[0]; if (DG) doG(t); else if (DH) doHue(t); else if (DA) doAl(t); }, { passive: false });
+        document.addEventListener('touchend', () => { DG = DH = DA = false; });
+
+        function doG(e) { const c = document.getElementById('pgc-' + APid); if (!c) return; const r = c.getBoundingClientRect(); HSV.s = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); HSV.v = 1 - Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)); updateUI(); }
+        function doHue(e) { const c = document.getElementById('phc-' + APid); if (!c) return; const r = c.getBoundingClientRect(); HSV.h = Math.max(0, Math.min(360, ((e.clientX - r.left) / r.width) * 360)); drawG(APid); updateUI(); }
+        function doAl(e) { const c = document.getElementById('pac-' + APid); if (!c) return; const r = c.getBoundingClientRect(); HSV.a = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); updateUI(); }
+
+        /* DRAWER */
+        function toggleDrawer(e) { e.preventDefault(); document.getElementById('drawer').classList.contains('open') ? closeDrawer() : openDrawer(); }
+        function openDrawer() { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); document.getElementById('logoIcon').classList.add('drawer-open'); }
+        function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); document.getElementById('logoIcon').classList.remove('drawer-open'); closeAllPickers(); }
+
+        /* RESET */
+        function resetAll() { applyPreset('p0'); document.body.style.fontFamily = ''; document.querySelectorAll('.font-item').forEach(i => i.classList.toggle('selected', i.dataset.v === "'DM Sans',sans-serif")); }
+
+        /* NAV */
+        function setActive(el) { document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); el.classList.add('active'); }
+        function toggleTabDropdown() { document.getElementById('tabTrigger').classList.toggle('open'); document.getElementById('tabDropdown').classList.toggle('open'); }
+        function selectMobileTab(el, label) { document.querySelectorAll('.nav-tab-dropdown-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); document.getElementById('tabTriggerLabel').textContent = label; document.getElementById('tabTrigger').classList.remove('open'); document.getElementById('tabDropdown').classList.remove('open'); }
+        function expandSearch() { const wrap = document.getElementById('searchWrap'), nr = document.getElementById('navRight'), input = document.getElementById('searchInput'); const wr = wrap.getBoundingClientRect(), nrr = nr.getBoundingClientRect(), aw = nrr.right - wr.left; wrap.style.setProperty('--expanded-width', aw + 'px'); input.style.width = aw + 'px'; wrap.classList.add('expanded'); nr.classList.add('search-active'); if (!input.value.trim()) document.getElementById('searchDropdown').classList.add('open'); }
+        function collapseSearch() { const wrap = document.getElementById('searchWrap'), nr = document.getElementById('navRight'), input = document.getElementById('searchInput'); wrap.classList.remove('expanded'); nr.classList.remove('search-active'); document.getElementById('searchDropdown').classList.remove('open'); input.style.width = ''; wrap.style.removeProperty('--expanded-width'); input.value = ''; input.blur(); }
+        function handleSearchInput(val) { document.getElementById('searchDropdown').classList.toggle('open', val.trim() === ''); }
+        function fillSearch(el) { document.getElementById('searchInput').value = el.innerText.trim(); document.getElementById('searchDropdown').classList.remove('open'); }
+        function clearHistory() { document.getElementById('historyList').innerHTML = '<div style="padding:14px 16px;color:#333;font-size:0.82rem;text-align:center;">暂无搜索历史</div>'; }
+        document.addEventListener('mousedown', e => {
+            if (!document.getElementById('searchWrap').contains(e.target)) collapseSearch();
+            if (!document.getElementById('mobileTabArea').contains(e.target)) { document.getElementById('tabTrigger').classList.remove('open'); document.getElementById('tabDropdown').classList.remove('open'); }
+        });
+
+        buildAll();
+    </script>
+</body>
+
 </html>
