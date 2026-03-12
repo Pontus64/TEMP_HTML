@@ -11,7 +11,6 @@
     <style>
         :root {
             --top-nav-height: 64px;
-            --bg-nav: rgba(10, 10, 10, 0.95);
             --bg-dark: #0a0a0a;
             --bg-panel: #141414;
             --bg-hover: #1c1c1c;
@@ -45,7 +44,7 @@
             left: 0;
             width: 100%;
             height: var(--top-nav-height);
-            background: var(--bg-nav);
+            background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
@@ -268,8 +267,7 @@
             align-items: center;
             gap: 8px;
             margin-left: auto;
-            flex-shrink: 1;
-            min-width: 0;
+            flex-shrink: 0;
             position: relative;
         }
 
@@ -277,8 +275,7 @@
             position: relative;
             display: flex;
             align-items: center;
-            flex-shrink: 1;
-            min-width: 34px;
+            flex-shrink: 0;
             z-index: 5;
             width: 200px;
             height: 34px;
@@ -299,13 +296,11 @@
             font-size: 0.83rem;
             outline: none;
             color-scheme: dark;
-            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s, padding 0.3s;
-            text-overflow: ellipsis;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s;
         }
 
         .nav-search-input::placeholder {
             color: #3a3a3a;
-            transition: color 0.2s;
         }
 
         .nav-search-wrap.expanded .nav-search-input {
@@ -322,7 +317,6 @@
             display: flex;
             pointer-events: none;
             z-index: 2;
-            transition: right 0.3s, transform 0.3s;
         }
 
         .nav-search-icon svg {
@@ -381,7 +375,7 @@
             top: calc(100% + 8px);
             left: 0;
             width: 100%;
-            /* min-width: 260px; */
+            min-width: 260px;
             background: var(--bg-panel);
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -433,12 +427,8 @@
             padding: 10px 16px;
             cursor: pointer;
             font-size: 0.86rem;
-            color: #666666;
+            color: #aaa;
             transition: background 0.15s;
-            /* 新增下面三行，防止小屏下搜索历史文字过长撑爆容器 */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .search-history-item:hover {
@@ -598,6 +588,7 @@
             max-width: 100vw;
             background: #0f0f0f;
             border-right: 1px solid #1e1e1e;
+            box-shadow: 24px 0 64px rgba(0, 0, 0, 0.75);
             z-index: 501;
             display: flex;
             flex-direction: column;
@@ -1151,46 +1142,6 @@
                 border-right: none;
             }
         }
-
-        /* ── 极限窄屏：搜索框转为纯图标状态 ── */
-        @media (max-width: 400px) {
-            .nav-search-wrap {
-                width: 34px;
-                /* 强制缩小为图标尺寸 */
-                min-width: 34px;
-            }
-
-            .nav-search-input {
-                padding: 0;
-                /* 必须去掉 padding 才能真正缩小到 34px 不溢出 */
-                color: transparent;
-                /* 隐藏可能存在的文字 */
-                cursor: pointer;
-                /* 提示用户这是一个可点的按钮 */
-            }
-
-            .nav-search-input::placeholder {
-                color: transparent;
-                /* 隐藏占位符 */
-            }
-
-            .nav-search-icon {
-                right: 50%;
-                transform: translate(50%, -50%);
-                /* 让放大镜图标绝对居中 */
-            }
-
-            /* 展开状态的覆写，恢复输入框形态 */
-            .nav-search-wrap.expanded .nav-search-input {
-                padding: 7px 36px 7px 14px;
-                color: var(--text-main);
-                cursor: text;
-            }
-
-            .nav-search-wrap.expanded .nav-search-input::placeholder {
-                color: #3a3a3a;
-            }
-        }
     </style>
 </head>
 
@@ -1253,11 +1204,11 @@
                     <div id="historyList">
                         <div class="search-history-item" onclick="fillSearch(this)"><svg viewBox="0 0 24 24">
                                 <path
-                                    d="M13 3a9 9 0 1 0 .001 18.001A9 9 0 0 0 13 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z" />
+                                    d="M13 3a9 9 0 1 0 .001 18.001A9 9 0 0 0 13 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z" />
                             </svg>冰岛极光拍摄技巧</div>
                         <div class="search-history-item" onclick="fillSearch(this)"><svg viewBox="0 0 24 24">
                                 <path
-                                    d="M13 3a9 9 0 1 0 .001 18.001A9 9 0 0 0 13 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z" />
+                                    d="M13 3a9 9 0 1 0 .001 18.001A9 9 0 0 0 13 3zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z" />
                             </svg>东京街拍机位推荐</div>
                     </div>
                 </div>
@@ -1330,18 +1281,18 @@
     <script>
         /* DATA */
         const PRESETS = [
-            { name: '深黑', key: 'p0', nav: 'rgba(10, 10, 10, 0.95)', bg: '#0a0a0a', panel: '#141414', hover: '#1c1c1c', accent: '#d4af37', textMain: '#f0f0f0', textMuted: '#666', border: '#1e1e1e' },
-            { name: '雪白', key: 'p1', nav: 'rgba(244, 244, 242, 0.95)', bg: '#f4f4f2', panel: '#eaeae8', hover: '#e0e0de', accent: '#6a6a6a', textMain: '#111', textMuted: '#888', border: '#ddd' },
-            { name: '暖调', key: 'p2', nav: 'rgba(25, 16, 8, 0.95)', bg: '#191008', panel: '#221a0e', hover: '#2d2212', accent: '#e8944a', textMain: '#f2e8d8', textMuted: '#7a6555', border: '#2e2418' },
-            { name: '石板', key: 'p3', nav: 'rgba(14, 18, 25, 0.95)', bg: '#0e1219', panel: '#161d27', hover: '#1d2535', accent: '#5b9cf6', textMain: '#d8e4f5', textMuted: '#4d6080', border: '#1c2638' },
-            { name: '森林', key: 'p4', nav: 'rgba(6, 14, 8, 0.95)', bg: '#060e08', panel: '#0c1a0e', hover: '#112418', accent: '#4ecb7a', textMain: '#d0edda', textMuted: '#3a6a4a', border: '#0f2218' },
-            { name: '霓虹', key: 'p5', nav: 'rgba(6, 6, 18, 0.95)', bg: '#060612', panel: '#0d0d22', hover: '#14143a', accent: '#00f5d4', textMain: '#e0e0ff', textMuted: '#4455aa', border: '#1a1a38' },
-            { name: '玫瑰', key: 'p6', nav: 'rgba(17, 8, 16, 0.95)', bg: '#110810', panel: '#1e0e1c', hover: '#2a1428', accent: '#e8609a', textMain: '#f5e0f0', textMuted: '#664455', border: '#251522' },
-            { name: '赤铜', key: 'p7', nav: 'rgba(14, 9, 8, 0.95)', bg: '#0e0908', panel: '#1a1310', hover: '#231a16', accent: '#b5663c', textMain: '#f0e0d5', textMuted: '#7a5545', border: '#261b17' },
+            { name: '深黑', key: 'p0', bg: '#0a0a0a', panel: '#141414', hover: '#1c1c1c', accent: '#d4af37', textMain: '#f0f0f0', textMuted: '#666', border: '#1e1e1e' },
+            { name: '雪白', key: 'p1', bg: '#f4f4f2', panel: '#eaeae8', hover: '#e0e0de', accent: '#1a1a1a', textMain: '#111', textMuted: '#888', border: '#ddd' },
+            { name: '暖调', key: 'p2', bg: '#191008', panel: '#221a0e', hover: '#2d2212', accent: '#e8944a', textMain: '#f2e8d8', textMuted: '#7a6555', border: '#2e2418' },
+            { name: '石板', key: 'p3', bg: '#0e1219', panel: '#161d27', hover: '#1d2535', accent: '#5b9cf6', textMain: '#d8e4f5', textMuted: '#4d6080', border: '#1c2638' },
+            { name: '森林', key: 'p4', bg: '#060e08', panel: '#0c1a0e', hover: '#112418', accent: '#4ecb7a', textMain: '#d0edda', textMuted: '#3a6a4a', border: '#0f2218' },
+            { name: '霓虹', key: 'p5', bg: '#060612', panel: '#0d0d22', hover: '#14143a', accent: '#00f5d4', textMain: '#e0e0ff', textMuted: '#4455aa', border: '#1a1a38' },
+            { name: '玫瑰', key: 'p6', bg: '#110810', panel: '#1e0e1c', hover: '#2a1428', accent: '#e8609a', textMain: '#f5e0f0', textMuted: '#664455', border: '#251522' },
+            { name: '赤铜', key: 'p7', bg: '#0e0908', panel: '#1a1310', hover: '#231a16', accent: '#b5663c', textMain: '#f0e0d5', textMuted: '#7a5545', border: '#261b17' },
         ];
         const ACCENT_PRESETS = ['#d4af37', '#a0aec0', '#f0706a', '#3cd4c8', '#52c97e', '#a98ede'];
         const VAR_GROUPS = {
-            bg: [{ key: '--bg-dark', label: '主背景' }, { key: '--bg-nav', label: '导航栏' }, { key: '--bg-panel', label: '面板色' }, { key: '--bg-hover', label: '悬停色' }],
+            bg: [{ key: '--bg-dark', label: '主背景' }, { key: '--bg-panel', label: '面板色' }, { key: '--bg-hover', label: '悬停色' }],
             text: [{ key: '--text-main', label: '主文字' }, { key: '--text-muted', label: '次文字' }],
             border: [{ key: '--border', label: '边框色' }]
         };
@@ -1400,7 +1351,7 @@
         }
         function applyPreset(key) {
             const p = PRESETS.find(x => x.key === key); if (!p) return;
-            sv('--bg-dark', p.bg); sv('--bg-nav', p.nav); sv('--bg-panel', p.panel); sv('--bg-hover', p.hover); sv('--accent', p.accent);
+            sv('--bg-dark', p.bg); sv('--bg-panel', p.panel); sv('--bg-hover', p.hover); sv('--accent', p.accent);
             sv('--text-main', p.textMain); sv('--text-muted', p.textMuted); sv('--border', p.border);
             syncDim(p.accent); markPreset(key); refreshAllDots(); syncAccentDotSel(p.accent); closeAllPickers();
         }
