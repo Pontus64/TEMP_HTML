@@ -48,6 +48,9 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         /* Custom Scrollbar */
@@ -404,14 +407,7 @@
             color: var(--text-secondary);
         }
 
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-top-color: var(--accent-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+
 
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -464,8 +460,8 @@
 
         <div id="gitExplorer" class="git-explorer">
             <div class="git-explorer-loading">
-                <div class="spinner"></div>
-                <span>Enter a GitHub URL above to explore repository</span>
+                
+                <span>输入github/gitee地址解析完整文档</span>
             </div>
         </div>
     </main>
@@ -866,15 +862,16 @@
             </div>`;
         }
 
-        function showLoading(message = 'Loading...') {
-            return `<div class="git-explorer-loading">
-                <div class="spinner"></div>
-                <span>${message}</span>
-            </div>`;
-        }
+
 
         function showError(message) {
             return `<div class="error">${message}</div>`;
+        }
+
+        function showLoading(message = 'Loading...') {
+            return `<div class="git-explorer-loading">
+                <span>${message}</span>
+            </div>`;
         }
 
         // ============================================
@@ -1075,12 +1072,18 @@
             const input = document.getElementById('urlInput');
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    loadRepository();
+                    const url = input.value.trim();
+                    if (url) {
+                        loadRepository();
+                    }
                 }
             });
 
-            // Load initial repository
-            loadRepository();
+            // Load only if URL input has value
+            const url = input.value.trim();
+            if (url) {
+                loadRepository();
+            }
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
