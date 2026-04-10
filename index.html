@@ -1,1090 +1,781 @@
 <!DOCTYPE html>
-<html data-theme="light">
+<html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git Explorer Demo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-markdown.min.css">
+    <title>WebRTC Demo — NAT穿透演示</title>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f6f8fa;
-            --bg-tertiary: #eaeef2;
-            --text-primary: #24292f;
-            --text-secondary: #57606a;
-            --border-color: #d0d7de;
-            --accent-color: #0969da;
-            --selected-bg: #0969da;
-            --selected-text: #ffffff;
-            --code-bg: #f6f8fa;
-            --resize-color: #d0d7de;
-            --header-bg: #f6f8fa;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;600;700&display=swap');
 
-        [data-theme="dark"] {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --text-primary: #c9d1d9;
-            --text-secondary: #8b949e;
-            --border-color: #30363d;
-            --accent-color: #58a6ff;
-            --selected-bg: #58a6ff;
-            --selected-text: #0d1117;
-            --code-bg: #161b22;
-            --resize-color: #30363d;
-            --header-bg: #161b22;
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --accent: #00ff88;
+            --accent2: #0088ff;
+            --danger: #ff4466;
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --radius: 12px;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
             min-height: 100vh;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 48px;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
+        /* Header */
+        header {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        header .sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .dot {
             width: 8px;
             height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            margin-left: auto;
         }
 
-        .header {
-            background: var(--header-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 20px;
+        .dot.red {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+
+        /* ID Panel */
+        .panel {
+            width: 100%;
+            max-width: 860px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        .panel-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        .id-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            height: 56px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .header h1 {
+        .id-box {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 15px;
+            font-weight: 500;
+            color: var(--accent);
+            background: rgba(0, 255, 136, 0.07);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 10px 16px;
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .id-box.placeholder {
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        /* Input */
+        input[type="text"] {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            padding: 10px 14px;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+            transition: border-color .2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent2);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--muted);
+        }
+
+        /* Buttons */
+        button {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
             font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #00e87a;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--muted);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid rgba(255, 68, 102, 0.35);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 68, 102, 0.1);
+        }
+
+        .btn-copy {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            font-size: 12px;
+        }
+
+        .btn-copy:hover {
+            color: var(--text);
+            border-color: var(--muted);
+        }
+
+        .btn-copy.copied {
+            color: var(--accent);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        /* Status bar */
+        .status-bar {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .status-indicator.online {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        .status-indicator.calling {
+            background: #ffaa00;
+            box-shadow: 0 0 6px #ffaa00;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .status-indicator.connected {
+            background: var(--accent2);
+            box-shadow: 0 0 6px var(--accent2);
+        }
+
+        .status-indicator.error {
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        /* Video grid */
+        .video-grid {
+            width: 100%;
+            max-width: 860px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 560px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .video-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 4/3;
+        }
+
+        .video-card.active {
+            border-color: rgba(0, 136, 255, 0.4);
+        }
+
+        .video-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.55);
+            padding: 3px 8px;
+            border-radius: 4px;
+            z-index: 2;
+            letter-spacing: 0.8px;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--muted);
+        }
+
+        .video-placeholder .icon {
+            font-size: 32px;
+            opacity: 0.3;
+        }
+
+        .video-placeholder span {
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        video.visible {
+            display: block;
+        }
+
+        /* ICE debug panel */
+        .debug-panel {
+            width: 100%;
+            max-width: 860px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        .debug-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .header h1 svg {
-            width: 20px;
-            height: 20px;
-            color: var(--accent-color);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .theme-toggle {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 6px 14px;
+        .debug-toggle {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
             cursor: pointer;
-            color: var(--text-primary);
-            font-size: 13px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 2px 6px;
         }
 
-        .theme-toggle:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--accent-color);
+        .debug-toggle:hover {
+            color: var(--text);
         }
 
-        .theme-toggle svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .container {
-            padding: 20px;
-        }
-
-        .url-input {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            flex: 1;
-        }
-
-        .url-input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
-        }
-
-        .url-input-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: stretch;
-            margin-bottom: 20px;
-        }
-
-        .url-input-wrapper::before {
+        .log-list {
+            max-height: 160px;
+            overflow-y: auto;
             display: none;
         }
 
-        .load-btn {
-            background: #009aff;
-            border: none;
-            border-radius: 8px;
-            padding: 0 24px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: white;
-            transition: all 0.2s;
-            white-space: nowrap;
+        .log-list.open {
+            display: block;
         }
 
-        .load-btn:hover {
-            background: #0088e6;
-        }
-
-        /* Git Explorer Styles */
-        .git-explorer {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            overflow: hidden;
-            height: calc(100vh - 180px);
-            min-height: 500px;
+        .log-entry {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             display: flex;
-            flex-direction: column;
+            gap: 10px;
         }
 
-        .git-explorer-header {
-            background: var(--header-bg);
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 13px;
+        .log-time {
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .log-msg.ice {
+            color: #00aaff;
+        }
+
+        .log-msg.ok {
+            color: var(--accent);
+        }
+
+        .log-msg.err {
+            color: var(--danger);
+        }
+
+        .log-msg.info {
+            color: var(--text);
+        }
+
+        /* Controls row */
+        .controls {
+            width: 100%;
+            max-width: 860px;
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
-        .git-explorer-header a {
-            color: var(--accent-color);
-            text-decoration: none;
-        }
-
-        .git-explorer-header a:hover {
-            text-decoration: underline;
-        }
-
-        .git-explorer-header span {
-            color: var(--text-secondary);
-        }
-
-        .git-explorer-frame {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .git-explorer-frame-tree {
-            width: 280px;
-            min-width: 180px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            overflow-y: auto;
-            padding: 8px 0;
-        }
-
-        .git-explorer-tree {
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .git-explorer-tree-item {
-            user-select: none;
-        }
-
-        .git-explorer-tree-item a {
-            display: flex;
-            align-items: center;
-            padding: 2px 12px;
-            color: var(--text-primary);
-            text-decoration: none;
-            cursor: pointer;
-            transition: background 0.1s;
-        }
-
-        .git-explorer-tree-item a:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .git-explorer-tree-item a.selected {
-            background: var(--selected-bg);
-            color: var(--selected-text);
-        }
-
-        .git-explorer-tree-item .folder {
-            font-weight: 500;
-        }
-
-        .git-explorer-tree-item .icon {
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-            opacity: 0.7;
-        }
-
-        .git-explorer-tree-item .name {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .git-explorer-tree-item .size {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-left: 8px;
-        }
-
-        .git-explorer-frame-resize {
-            width: 4px;
-            background: var(--resize-color);
-            cursor: col-resize;
-            transition: background 0.2s;
-        }
-
-        .git-explorer-frame-resize:hover {
-            background: var(--accent-color);
-        }
-
-        .git-explorer-frame-code {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .git-explorer-frame-code pre {
-            flex: 1;
-            margin: 0;
-            padding: 16px;
-            overflow: auto;
-            background: var(--code-bg);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .git-explorer-frame-code code {
-            font-family: 'SF Mono', Monaco, Consolas, monospace;
-        }
-
-        .loading, .error, .empty {
-            padding: 20px;
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        .error {
-            color: #dc3545;
-        }
-
-        /* Syntax highlighting container */
-        .hljs {
-            background: transparent !important;
-        }
-
-        /* Markdown rendering */
-        .markdown-body {
-            padding: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            word-wrap: break-word;
-        }
-        .markdown-body img {
-            max-width: 100%;
-            height: auto;
-        }
-        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-            margin-top: 1em;
-            margin-bottom: 0.5em;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.3em;
-        }
-        .markdown-body code {
-            background: var(--bg-tertiary);
-            padding: 0.2em 0.4em;
-            border-radius: 3px;
-            font-size: 85%;
-        }
-        .markdown-body pre {
-            background: var(--bg-secondary);
-            padding: 16px;
-            border-radius: 6px;
-            overflow-x: auto;
-        }
-        .markdown-body pre code {
-            background: transparent;
-            padding: 0;
-        }
-        .markdown-body blockquote {
-            margin: 0;
-            padding: 0 1em;
-            border-left: 4px solid var(--border-color);
-            color: var(--text-secondary);
-        }
-
-        /* Image preview */
-        .image-preview {
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: var(--bg-secondary);
-        }
-        .image-preview img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .markdown-body table {
-            border-collapse: collapse;
+        /* How-it-works strip */
+        .howto {
             width: 100%;
-            margin: 1em 0;
+            max-width: 860px;
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
         }
-        .markdown-body table th, .markdown-body table td {
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
+
+        .howto-step {
+            padding: 14px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
         }
-        .markdown-body table th {
-            background: var(--bg-secondary);
+
+        .howto-step .num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+
+        .howto-step .title {
+            font-size: 13px;
             font-weight: 600;
-        }
-        .markdown-body a {
-            color: var(--accent-color);
-        }
-        .markdown-body ul, .markdown-body ol {
-            padding-left: 2em;
-            margin: 1em 0;
+            margin-bottom: 4px;
         }
 
-        .git-explorer-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            gap: 10px;
-            color: var(--text-secondary);
-        }
-
-
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .file-icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-            vertical-align: text-bottom;
-        }
-
-        .folder-icon {
-            color: #54aeff;
-        }
-
-        [data-theme="dark"] .folder-icon {
-            color: #79c0ff;
+        .howto-step .desc {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.6;
         }
     </style>
 </head>
+
 <body>
-    <header class="header">
-        <h1>
-            <svg viewBox="0 0 16 16" fill="currentColor">
-                <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 13.5v-11z"/>
-            </svg>
-            Git Explorer
-        </h1>
-        <div class="header-actions">
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn">
-                <svg class="sun-icon" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0zm0 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13zm8-5a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 16 8zm-3 3a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 13 11zm0-3a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 13 8zm-3 3a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 10 11z"/>
-                </svg>
-                <svg class="moon-icon" style="display:none" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.766.766 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-                </svg>
-            </button>
-        </div>
+
+    <header>
+        <h1>WebRTC P2P Demo</h1>
+        <span class="sub">NAT穿透 · ICE · STUN · TURN</span>
+        <div class="dot red" id="header-dot"></div>
     </header>
 
-    <main class="container">
-        <div class="url-input-wrapper">
-            <input type="text" class="url-input" id="urlInput"
-                   placeholder="Enter GitHub URL..."
-                   value="">
-            <button class="load-btn" id="loadBtn" onclick="loadRepository()">解析</button>
-        </div>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-indicator" id="status-dot"></div>
+        <span id="status-text">正在连接 PeerJS 服务器...</span>
+    </div>
 
-        <div id="gitExplorer" class="git-explorer">
-            <div class="git-explorer-loading">
-                
-                <span>输入github/gitee地址解析完整文档</span>
-            </div>
+    <!-- 我的 ID -->
+    <div class="panel">
+        <div class="panel-title">① 你的 Peer ID（发给对方）</div>
+        <div class="id-row">
+            <div class="id-box placeholder" id="my-id-box">生成中...</div>
+            <button class="btn-copy" id="copy-btn" onclick="copyId()" disabled>复制</button>
         </div>
-    </main>
+    </div>
+
+    <!-- 拨号面板 -->
+    <div class="panel">
+        <div class="panel-title">② 输入对方的 Peer ID 并拨号</div>
+        <div class="id-row">
+            <input type="text" id="remote-id-input" placeholder="粘贴对方的 ID..." />
+            <button class="btn-primary" id="call-btn" onclick="startCall()" disabled>📞 发起通话</button>
+            <button class="btn-danger" id="hangup-btn" onclick="hangUp()" style="display:none">挂断</button>
+        </div>
+    </div>
+
+    <!-- 视频区 -->
+    <div class="video-grid">
+        <div class="video-card" id="local-card">
+            <span class="video-label">LOCAL</span>
+            <div class="video-placeholder" id="local-placeholder">
+                <span class="icon">📷</span>
+                <span>本地摄像头</span>
+            </div>
+            <video id="local-video" autoplay muted playsinline></video>
+        </div>
+        <div class="video-card" id="remote-card">
+            <span class="video-label">REMOTE · P2P</span>
+            <div class="video-placeholder" id="remote-placeholder">
+                <span class="icon">🌐</span>
+                <span>等待对方连接</span>
+            </div>
+            <video id="remote-video" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <!-- ICE 调试面板 -->
+    <div class="debug-panel">
+        <div class="debug-title">
+            <span>ICE / NAT 穿透日志</span>
+            <button class="debug-toggle" id="log-toggle" onclick="toggleLog()">展开 ▾</button>
+        </div>
+        <div class="log-list" id="log-list"></div>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button class="btn-secondary" onclick="toggleMute()" id="mute-btn">🎤 静音</button>
+        <button class="btn-secondary" onclick="toggleVideo()" id="video-btn">📹 关闭画面</button>
+    </div>
+
+    <!-- 工作原理说明 -->
+    <div class="howto">
+        <div class="howto-step">
+            <div class="num">STEP 01</div>
+            <div class="title">获取 Peer ID</div>
+            <div class="desc">连接 PeerJS 云端信令服务器，获得唯一 ID。底层走 WebSocket。</div>
+        </div>
+        <div class="howto-step">
+            <div class="num">STEP 02</div>
+            <div class="title">STUN 发现地址</div>
+            <div class="desc">PeerJS 内置 Google STUN，自动探测你的公网 IP:Port（ICE candidate）。</div>
+        </div>
+        <div class="howto-step">
+            <div class="num">STEP 03</div>
+            <div class="title">ICE 打洞</div>
+            <div class="desc">双方交换 candidate，尝试 UDP 打洞建立 P2P 直连。</div>
+        </div>
+        <div class="howto-step">
+            <div class="num">STEP 04</div>
+            <div class="title">TURN 兜底</div>
+            <div class="desc">打洞失败时自动走 TURN 中转。音视频走 SRTP 加密传输。</div>
+        </div>
+    </div>
 
     <script>
-        // ============================================
-        // CONFIG - GitHub and Gitee API endpoints
-        // ============================================
-        const CONFIG = {
-            github: {
-                name: 'GitHub',
-                link: 'https://github.com',
-                // Match both /tree/branch/path and bare repo URLs like /owner/repo
-                pattern: '^https://github\\.com/([^/]+)/([^/]+)(?:/tree/([^/]+)(?:/(.*))?)?/?$',
-                repoApi: 'https://api.github.com/repos/{owner}/{repo}',
-                treeApi: 'https://api.github.com/repos/{owner}/{repo}/git/trees/{branch}?recursive=1',
-                blobApi: 'https://api.github.com/repos/{owner}/{repo}/git/blobs/{sha}',
-                rawApi: 'https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}'
-            },
-            gitee: {
-                name: 'Gitee',
-                link: 'https://gitee.com',
-                pattern: '^https://gitee\\.com/([^/]+)/([^/]+)(?:/tree/([^/]+)(?:/(.*))?)?/?$',
-                repoApi: 'https://gitee.com/api/v5/repos/{owner}/{repo}',
-                treeApi: 'https://gitee.com/api/v5/repos/{owner}/{repo}/git/trees/{branch}?recursive=1',
-                blobApi: 'https://gitee.com/api/v5/repos/{owner}/{repo}/git/blobs/{sha}',
-                rawApi: 'https://gitee.com/{owner}/{repo}/raw/{branch}/{path}'
+        let peer, localStream, currentCall
+        let muted = false, videoOff = false
+        let logOpen = false
+
+        // ─── PeerJS 初始化 ───────────────────────────────
+        // PeerJS 免费云服务器帮你处理：
+        //  - WebSocket 信令
+        //  - STUN（Google stun.l.google.com:19302）
+        //  - 内置 TURN 兜底
+        peer = new Peer(undefined, {
+            // 不传 host 就用 PeerJS 免费云服务器 (broker.peerjs.com)
+            debug: 2,
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    // 如果你有自己的 TURN 服务器，在这里加：
+                    // { urls: 'turn:your.server.com:3478', username: 'u', credential: 'p' }
+                ]
             }
-        };
+        })
 
-        const MAX_FILE_SIZE = 500000; // 500KB
-        const BRANCH_CACHE_TIME = 5 * 60 * 1000; // 5 minutes
+        peer.on('open', id => {
+            setStatus('online', `已就绪 · Peer ID: ${id}`)
+            document.getElementById('my-id-box').textContent = id
+            document.getElementById('my-id-box').classList.remove('placeholder')
+            document.getElementById('copy-btn').disabled = false
+            document.getElementById('header-dot').classList.remove('red')
+            document.getElementById('call-btn').disabled = false
+            addLog('ok', `已连接 PeerJS 信令服务器，ID: ${id}`)
+        })
 
-        // File extension to language mapping
-        const LANG_MAP = {
-            'js': 'javascript', 'jsx': 'javascript',
-            'ts': 'typescript', 'tsx': 'typescript',
-            'java': 'java',
-            'py': 'python',
-            'go': 'go',
-            'rs': 'rust',
-            'rb': 'ruby',
-            'php': 'php',
-            'c': 'c', 'h': 'c',
-            'cpp': 'cpp', 'cc': 'cpp', 'cxx': 'cpp', 'hpp': 'cpp',
-            'cs': 'csharp',
-            'swift': 'swift',
-            'kt': 'kotlin', 'kts': 'kotlin',
-            'scala': 'scala',
-            'md': 'markdown', 'markdown': 'markdown',
-            'json': 'json',
-            'xml': 'xml', 'xsd': 'xml',
-            'html': 'html', 'htm': 'html',
-            'css': 'css', 'scss': 'scss', 'sass': 'sass',
-            'sql': 'sql',
-            'sh': 'bash', 'bash': 'bash', 'zsh': 'bash',
-            'yml': 'yaml', 'yaml': 'yaml',
-            'toml': 'toml',
-            'ini': 'ini', 'properties': 'properties',
-            'txt': 'plaintext',
-            'vue': 'xml',
-            'gradle': 'gradle',
-            'xml': 'xml'
-        };
+        peer.on('error', err => {
+            setStatus('error', `错误: ${err.type}`)
+            addLog('err', `PeerJS 错误: ${err.type} — ${err.message}`)
+        })
 
-        // Global state
-        let currentData = null;
-        let branchCache = new Map();
+        // ─── 接听来电 ────────────────────────────────────
+        peer.on('call', async incomingCall => {
+            addLog('info', `收到来电，caller ID: ${incomingCall.peer}`)
+            setStatus('calling', `收到来电，正在接听...`)
 
-        // ============================================
-        // Theme Management
-        // ============================================
-        function toggleTheme() {
-            const html = document.documentElement;
-            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            const stream = await getLocalStream()
+            // 自动接听（你可以改成弹确认框）
+            incomingCall.answer(stream)
+            currentCall = incomingCall
+            bindCallEvents(incomingCall)
+            showHangup()
+        })
 
-            // Update highlight.js theme
-            const themeLink = document.getElementById('hljs-theme');
-            themeLink.href = newTheme === 'dark'
-                ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
-                : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+        // ─── 发起通话 ────────────────────────────────────
+        async function startCall() {
+            const remoteId = document.getElementById('remote-id-input').value.trim()
+            if (!remoteId) return alert('请输入对方的 Peer ID')
+            if (remoteId === peer.id) return alert('不能呼叫自己')
 
-            // Toggle icons
-            const sunIcon = document.querySelector('.sun-icon');
-            const moonIcon = document.querySelector('.moon-icon');
-            if (newTheme === 'dark') {
-                sunIcon.style.display = 'none';
-                moonIcon.style.display = 'block';
-            } else {
-                sunIcon.style.display = 'block';
-                moonIcon.style.display = 'none';
-            }
+            setStatus('calling', `正在呼叫 ${remoteId}...`)
+            addLog('info', `发起呼叫 → ${remoteId}`)
+
+            const stream = await getLocalStream()
+            // PeerJS 内部：
+            //  1. 通过 WebSocket 信令服务器把 Offer (SDP) 发给对方
+            //  2. 收集 ICE Candidate（STUN 查公网地址）
+            //  3. 交换 Candidate，尝试打洞
+            const call = peer.call(remoteId, stream)
+            currentCall = call
+            bindCallEvents(call)
+            showHangup()
         }
 
-        function initTheme() {
-            const saved = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = saved || (prefersDark ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
+        function bindCallEvents(call) {
+            // 监听 ICE 连接状态（需要拿到底层 RTCPeerConnection）
+            call.on('stream', remoteStream => {
+                setStatus('connected', `P2P 已连接！`)
+                addLog('ok', `媒体流已建立，开始 P2P 传输`)
+                const rv = document.getElementById('remote-video')
+                rv.srcObject = remoteStream
+                rv.classList.add('visible')
+                document.getElementById('remote-placeholder').style.display = 'none'
+                document.getElementById('remote-card').classList.add('active')
+            })
 
-            const themeLink = document.getElementById('hljs-theme');
-            themeLink.href = theme === 'dark'
-                ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
-                : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+            call.on('close', () => {
+                addLog('info', '通话已结束')
+                setStatus('online', '通话结束，已就绪')
+                resetRemote()
+            })
 
-            // Set initial icons
-            const sunIcon = document.querySelector('.sun-icon');
-            const moonIcon = document.querySelector('.moon-icon');
-            if (theme === 'dark') {
-                sunIcon.style.display = 'none';
-                moonIcon.style.display = 'block';
-            } else {
-                sunIcon.style.display = 'block';
-                moonIcon.style.display = 'none';
-            }
-        }
+            call.on('error', err => {
+                addLog('err', `通话错误: ${err}`)
+            })
 
-        // ============================================
-        // URL Parsing
-        // ============================================
-        function parseUrl(url) {
-            for (const [name, config] of Object.entries(CONFIG)) {
-                const match = url.match(new RegExp(config.pattern));
-                if (match) {
-                    return {
-                        platform: name,
-                        config: config,
-                        owner: match[1],
-                        repo: match[2],
-                        branch: match[3],
-                        path: match[4] || ''
-                    };
+            // 拿底层 RTCPeerConnection，监听 ICE 状态变化
+            call.peerConnection?.addEventListener('icecandidate', e => {
+                if (e.candidate) {
+                    // candidate.type 说明这是哪种路径：
+                    //   host  → 本机局域网地址
+                    //   srflx → STUN 发现的公网地址
+                    //   relay → TURN 中转地址（打洞失败兜底）
+                    const t = e.candidate.type || 'host'
+                    const addr = e.candidate.address || '?'
+                    addLog('ice', `发现 candidate [${t}] ${addr}`)
                 }
-            }
-            return null;
+            })
+
+            call.peerConnection?.addEventListener('iceconnectionstatechange', () => {
+                const s = call.peerConnection.iceConnectionState
+                // checking   → 正在尝试打洞
+                // connected  → 打洞成功，P2P 建立
+                // completed  → 选出最优路径
+                // failed     → 全部失败，需要 TURN
+                const msgMap = {
+                    checking: '正在尝试 NAT 打洞...',
+                    connected: 'NAT 打洞成功，P2P 直连！',
+                    completed: '最优路径已选定',
+                    failed: '打洞失败，尝试 TURN 中转',
+                    disconnected: '连接中断',
+                }
+                addLog(s === 'connected' || s === 'completed' ? 'ok' : 'ice',
+                    `ICE 状态: ${s}${msgMap[s] ? ' — ' + msgMap[s] : ''}`)
+            })
         }
 
-        // ============================================
-        // API Functions
-        // ============================================
-        async function fetchJson(url) {
-            console.log('Fetching:', url);
-            const resp = await fetch(url);
-            const text = await resp.text();
-            console.log('Response status:', resp.status, 'Body length:', text.length);
-
-            if (!resp.ok) {
-                let errorMsg = `HTTP ${resp.status}: ${resp.statusText}`;
-                try {
-                    const errorJson = JSON.parse(text);
-                    if (errorJson.message) {
-                        errorMsg += ` - ${errorJson.message}`;
-                    }
-                    if (resp.status === 403 && errorJson.message && errorJson.message.includes('rate limit')) {
-                        errorMsg += ' (GitHub API rate limit exceeded. Try again in an hour or use a token.)';
-                    }
-                } catch {}
-                throw new Error(errorMsg);
-            }
-
+        // ─── 获取本地摄像头 ──────────────────────────────
+        async function getLocalStream() {
+            if (localStream) return localStream
             try {
-                return JSON.parse(text);
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                const lv = document.getElementById('local-video')
+                lv.srcObject = localStream
+                lv.classList.add('visible')
+                document.getElementById('local-placeholder').style.display = 'none'
+                addLog('ok', '本地摄像头/麦克风已就绪')
+                return localStream
             } catch (e) {
-                throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+                addLog('err', `摄像头获取失败: ${e.message}`)
+                throw e
             }
         }
 
-        async function getDefaultBranch(owner, repo, platform) {
-            const cacheKey = `${platform}:${owner}:${repo}`;
-            const cached = branchCache.get(cacheKey);
-
-            if (cached && Date.now() - cached.time < BRANCH_CACHE_TIME) {
-                return cached.branch;
-            }
-
-            const config = CONFIG[platform];
-            const url = config.repoApi
-                .replace('{owner}', owner)
-                .replace('{repo}', repo);
-            const data = await fetchJson(url);
-            const branch = data.default_branch || 'main';
-
-            branchCache.set(cacheKey, { branch, time: Date.now() });
-            return branch;
+        // ─── 挂断 ────────────────────────────────────────
+        function hangUp() {
+            currentCall?.close()
+            resetRemote()
+            setStatus('online', '已挂断，就绪')
+            document.getElementById('hangup-btn').style.display = 'none'
+            document.getElementById('call-btn').style.display = ''
         }
 
-        async function fetchTree(info) {
-            const { platform, config, owner, repo, branch } = info;
-            let actualBranch = branch;
-
-            // If branch is empty, get default branch
-            if (!actualBranch) {
-                actualBranch = await getDefaultBranch(owner, repo, platform);
-            }
-
-            const url = config.treeApi
-                .replace('{owner}', owner)
-                .replace('{repo}', repo)
-                .replace('{branch}', actualBranch);
-
-            const data = await fetchJson(url);
-            console.log('API Response:', data);
-
-            // Check if response has valid tree data
-            if (!data.tree) {
-                if (data.message) {
-                    throw new Error(`GitHub API Error: ${data.message}`);
-                }
-                if (data.error) {
-                    throw new Error(`Gitee API Error: ${data.error}`);
-                }
-                throw new Error('Invalid response: missing tree data');
-            }
-
-            // Check if response was truncated
-            if (data.truncated) {
-                console.warn('Response was truncated by GitHub API');
-            }
-
-            return {
-                ...info,
-                branch: actualBranch,
-                tree: data.tree
-            };
+        function resetRemote() {
+            const rv = document.getElementById('remote-video')
+            rv.srcObject = null
+            rv.classList.remove('visible')
+            document.getElementById('remote-placeholder').style.display = ''
+            document.getElementById('remote-card').classList.remove('active')
         }
 
-        async function fetchBlob(info, sha) {
-            const { platform, config, owner, repo } = info;
-            const url = config.blobApi
-                .replace('{owner}', owner)
-                .replace('{repo}', repo)
-                .replace('{sha}', sha);
-
-            return fetchJson(url);
+        // ─── 静音 / 关画面 ───────────────────────────────
+        function toggleMute() {
+            if (!localStream) return
+            muted = !muted
+            localStream.getAudioTracks().forEach(t => t.enabled = !muted)
+            document.getElementById('mute-btn').textContent = muted ? '🔇 取消静音' : '🎤 静音'
         }
 
-        // ============================================
-        // Tree Building
-        // ============================================
-        function buildTree(items) {
-            const root = { name: '', path: '', type: 'tree', children: {} };
-
-            // Sort: directories first, then by name
-            items.sort((a, b) => {
-                if (a.type !== b.type) return a.type === 'tree' ? -1 : 1;
-                return a.path.localeCompare(b.path);
-            });
-
-            for (const item of items) {
-                // Skip empty paths
-                if (!item.path || typeof item.path !== 'string') {
-                    console.warn('Skipping invalid item:', item);
-                    continue;
-                }
-
-                const parts = item.path.split('/').filter(p => p.length > 0);
-                if (parts.length === 0) {
-                    console.warn('Skipping empty path:', item);
-                    continue;
-                }
-
-                let current = root;
-
-                // Create parent directories if they don't exist
-                for (let i = 0; i < parts.length - 1; i++) {
-                    const part = parts[i];
-                    if (!current.children) {
-                        current.children = {};
-                    }
-                    if (!current.children[part]) {
-                        current.children[part] = {
-                            name: part,
-                            path: parts.slice(0, i + 1).join('/'),
-                            type: 'tree',
-                            children: {}
-                        };
-                    }
-                    current = current.children[part];
-                }
-
-                // Add the item (file or directory)
-                const fileName = parts[parts.length - 1];
-                if (!current.children) {
-                    current.children = {};
-                }
-                current.children[fileName] = {
-                    name: fileName,
-                    path: item.path,
-                    type: item.type,
-                    sha: item.sha,
-                    size: item.size || 0
-                };
-            }
-
-            return root;
+        function toggleVideo() {
+            if (!localStream) return
+            videoOff = !videoOff
+            localStream.getVideoTracks().forEach(t => t.enabled = !videoOff)
+            document.getElementById('video-btn').textContent = videoOff ? '📷 开启画面' : '📹 关闭画面'
         }
 
-        // ============================================
-        // DOM Rendering
-        // ============================================
-        function getFileIcon(name, type) {
-            if (type === 'tree') {
-                return `<svg class="file-icon folder-icon" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M1.75 1.75a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V6a.25.25 0 0 0-.25-.25H9.5a.25.25 0 0 1-.25-.25V3.5H6a.25.25 0 0 0-.25.25V11H1.75z"/>
-                </svg>`;
-            }
-
-            const ext = name.split('.').pop()?.toLowerCase() || '';
-            const color = getFileColor(ext);
-
-            return `<svg class="file-icon" viewBox="0 0 16 16" fill="none" stroke="${color}" stroke-width="1.5">
-                <path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h5.586L14 3.414V14.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V1.5z"/>
-            </svg>`;
+        // ─── 工具函数 ────────────────────────────────────
+        function setStatus(type, msg) {
+            document.getElementById('status-dot').className = `status-indicator ${type}`
+            document.getElementById('status-text').textContent = msg
         }
 
-        function getFileColor(ext) {
-            const colors = {
-                'js': '#f1e05a', 'ts': '#3178c6', 'jsx': '#61dafb', 'tsx': '#61dafb',
-                'java': '#b07219', 'py': '#3572A5', 'go': '#00ADD8', 'rs': '#dea584',
-                'html': '#e34c26', 'css': '#563d7c', 'scss': '#c6538c', 'md': '#083fa1',
-                'json': '#292929', 'xml': '#0060ac', 'sql': '#e38c00',
-                'sh': '#89e051', 'rb': '#701516', 'php': '#4F5D95'
-            };
-            return colors[ext] || '#8b949e';
+        function showHangup() {
+            document.getElementById('hangup-btn').style.display = ''
+            document.getElementById('call-btn').style.display = 'none'
         }
 
-        function formatSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        function copyId() {
+            const id = document.getElementById('my-id-box').textContent
+            navigator.clipboard.writeText(id).then(() => {
+                const btn = document.getElementById('copy-btn')
+                btn.textContent = '已复制 ✓'
+                btn.classList.add('copied')
+                setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied') }, 2000)
+            })
         }
 
-        function renderTree(node, depth = 0) {
-            if (!node.children || Object.keys(node.children).length === 0) {
-                return '';
-            }
-
-            const indent = depth * 16; // 16px per level
-            let html = '';
-            const children = Object.values(node.children).sort((a, b) => {
-                if (a.type !== b.type) return a.type === 'tree' ? -1 : 1;
-                return a.name.localeCompare(b.name);
-            });
-
-            for (const child of children) {
-                if (child.type === 'tree') {
-                    const childHtml = renderTree(child, depth + 1);
-                    html += `<div class="git-explorer-tree-item">
-                        <a href="javascript:void(0)" class="folder" data-type="dir" data-path="${child.path}" style="padding-left:${indent + 12}px">
-                            <span class="toggle">▸</span>
-                            ${getFileIcon(child.name, 'tree')}
-                            <span class="name">${child.name}</span>
-                        </a>
-                        <div class="children" style="display:none">${childHtml}</div>
-                    </div>`;
-                } else {
-                    const sizeStr = child.size > 0 ? `<span class="size">${formatSize(child.size)}</span>` : '';
-                    html += `<div class="git-explorer-tree-item">
-                        <a href="javascript:void(0)" class="file" data-type="file" data-sha="${child.sha}" data-path="${child.path}" data-size="${child.size}" style="padding-left:${indent + 12}px">
-                            ${getFileIcon(child.name, 'file')}
-                            <span class="name">${child.name}</span>
-                            ${sizeStr}
-                        </a>
-                    </div>`;
-                }
-            }
-
-            return html;
+        function toggleLog() {
+            logOpen = !logOpen
+            document.getElementById('log-list').classList.toggle('open', logOpen)
+            document.getElementById('log-toggle').textContent = logOpen ? '收起 ▴' : '展开 ▾'
         }
 
-        function renderExplorer(data) {
-            const { platform, config, owner, repo, branch, tree } = data;
-            const treeData = buildTree(tree);
-            const treeHtml = renderTree(treeData);
-
-            return `<div class="git-explorer-header">
-                <a href="${config.link}" target="_blank">${config.name}</a>
-                <span>▸</span>
-                <a href="${config.link}/${owner}" target="_blank">${owner}</a>
-                <span>▸</span>
-                <a href="${config.link}/${owner}/${repo}" target="_blank">${repo}</a>
-                <span>▸</span>
-                <a href="${config.link}/${owner}/${repo}/tree/${branch}" target="_blank">${branch}</a>
-                ${data.path ? `<span>▸</span><span>${data.path}</span>` : ''}
-            </div>
-            <div class="git-explorer-frame">
-                <div class="git-explorer-frame-tree">
-                    <div class="git-explorer-tree" id="fileTree">
-                        ${treeHtml}
-                    </div>
-                </div>
-                <div class="git-explorer-frame-resize" id="resizeHandle"></div>
-                <div class="git-explorer-frame-code">
-                    <pre><code id="codeContent">Select a file to view its contents</code></pre>
-                </div>
-            </div>`;
+        function addLog(type, msg) {
+            const list = document.getElementById('log-list')
+            const t = new Date().toLocaleTimeString('zh-CN', { hour12: false })
+            const el = document.createElement('div')
+            el.className = 'log-entry'
+            el.innerHTML = `<span class="log-time">${t}</span><span class="log-msg ${type}">${msg}</span>`
+            list.appendChild(el)
+            list.scrollTop = list.scrollHeight
+            // 自动展开日志（有内容时）
+            if (!logOpen) toggleLog()
         }
-
-
-
-        function showError(message) {
-            return `<div class="error">${message}</div>`;
-        }
-
-        function showLoading(message = 'Loading...') {
-            return `<div class="git-explorer-loading">
-                <span>${message}</span>
-            </div>`;
-        }
-
-        // ============================================
-        // File Content Loading
-        // ============================================
-        function getLanguage(filename) {
-            const ext = filename.split('.').pop()?.toLowerCase();
-            return LANG_MAP[ext] || 'plaintext';
-        }
-
-        function b64ToUnicode(str) {
-            try {
-                return decodeURIComponent(atob(str).split('').map(c =>
-                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-                ).join(''));
-            } catch {
-                return atob(str);
-            }
-        }
-
-        async function loadFile(aElement, sha, path, size) {
-            const codeContent = document.getElementById('codeContent');
-
-            // Update selection
-            document.querySelectorAll('.git-explorer-tree-item a.selected').forEach(el => {
-                el.classList.remove('selected');
-            });
-            aElement.classList.add('selected');
-
-            const ext = path.split('.').pop()?.toLowerCase();
-            const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico'].includes(ext);
-            const isMarkdown = ext === 'md' || ext === 'markdown';
-
-            // Images and markdown are handled differently, skip size check
-            if (!isImage && !isMarkdown && size > MAX_FILE_SIZE) {
-                codeContent.innerHTML = `<div class="error">File too large to display (${formatSize(size)}). <a href="${aElement.dataset.downloadUrl}" target="_blank">Download</a></div>`;
-                return;
-            }
-
-            codeContent.innerHTML = '<span class="loading">Loading...</span>';
-
-            try {
-                const blob = await fetchBlob(currentData, sha);
-
-                if (isMarkdown) {
-                    // Render markdown
-                    const content = b64ToUnicode(blob.content);
-                    const html = marked.parse(content);
-                    codeContent.innerHTML = `<div class="markdown-body">${html}</div>`;
-
-                    // Fix relative image paths - convert to platform raw URLs
-                    const baseDir = path.substring(0, path.lastIndexOf('/') + 1);
-                    codeContent.querySelectorAll('img').forEach(img => {
-                        let src = img.getAttribute('src');
-                        if (src && (src.startsWith('./') || !src.startsWith('http'))) {
-                            // Remove leading ./
-                            src = src.replace(/^\.\//, '');
-                            // Build full path relative to repository root
-                            const fullPath = baseDir + src;
-                            // Convert to correct platform raw URL
-                            let rawUrl;
-                            if (currentData.platform === 'gitee') {
-                                rawUrl = `https://gitee.com/${currentData.owner}/${currentData.repo}/raw/${currentData.branch}/${fullPath}`;
-                            } else {
-                                rawUrl = `https://raw.githubusercontent.com/${currentData.owner}/${currentData.repo}/${currentData.branch}/${fullPath}`;
-                            }
-                            img.src = rawUrl;
-                        }
-                    });
-
-                    // Highlight code blocks inside markdown
-                    codeContent.querySelectorAll('pre code').forEach(block => {
-                        hljs.highlightElement(block);
-                    });
-                } else if (isImage) {
-                    // Render image directly
-                    const imageUrl = currentData.platform === 'gitee'
-                        ? `https://gitee.com/${currentData.owner}/${currentData.repo}/raw/${currentData.branch}/${path}`
-                        : `https://raw.githubusercontent.com/${currentData.owner}/${currentData.repo}/${currentData.branch}/${path}`;
-                    codeContent.innerHTML = `<div class="image-preview"><img src="${imageUrl}" alt="${path}" style="max-width:100%;border-radius:8px;"></div>`;
-                } else {
-                    // Render as code with syntax highlighting
-                    const content = b64ToUnicode(blob.content);
-                    const lang = getLanguage(path);
-                    codeContent.innerHTML = `<code class="language-${lang}">${escapeHtml(content)}</code>`;
-                    const codeElement = codeContent.firstElementChild;
-                    if (codeElement) {
-                        hljs.highlightElement(codeElement);
-                    }
-                }
-            } catch (err) {
-                console.error('Load error:', err);
-                codeContent.innerHTML = `<div class="error">Failed to load file: ${err.message}</div>`;
-            }
-        }
-
-        function escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // ============================================
-        // Resize Functionality
-        // ============================================
-        function initResize() {
-            const handle = document.getElementById('resizeHandle');
-            const treePanel = document.querySelector('.git-explorer-frame-tree');
-            let isResizing = false;
-            let startX = 0;
-            let startWidth = 0;
-
-            handle.addEventListener('mousedown', (e) => {
-                isResizing = true;
-                startX = e.clientX;
-                startWidth = treePanel.offsetWidth;
-                document.body.style.cursor = 'col-resize';
-                document.body.style.userSelect = 'none';
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isResizing) return;
-                const diff = e.clientX - startX;
-                const newWidth = Math.max(180, Math.min(500, startWidth + diff));
-                treePanel.style.width = newWidth + 'px';
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isResizing) {
-                    isResizing = false;
-                    document.body.style.cursor = '';
-                    document.body.style.userSelect = '';
-                }
-            });
-        }
-
-        // ============================================
-        // Event Handlers
-        // ============================================
-        function handleTreeClick(e) {
-            const a = e.target.closest('a');
-            if (!a) return;
-
-            const type = a.dataset.type;
-
-            if (type === 'dir') {
-                // Toggle directory
-                const toggle = a.querySelector('.toggle');
-                const children = a.nextElementSibling;
-
-                if (children && children.classList.contains('children')) {
-                    const isOpen = children.style.display !== 'none';
-                    children.style.display = isOpen ? 'none' : '';
-                    toggle.textContent = isOpen ? '▸' : '▾';
-                }
-            } else if (type === 'file') {
-                // Load file
-                const sha = a.dataset.sha;
-                const path = a.dataset.path;
-                const size = parseInt(a.dataset.size) || 0;
-                loadFile(a, sha, path, size);
-            }
-        }
-
-        async function loadRepository() {
-            const input = document.getElementById('urlInput');
-            const explorer = document.getElementById('gitExplorer');
-            const url = input.value.trim();
-
-            explorer.innerHTML = showLoading('Fetching repository...');
-
-            const info = parseUrl(url);
-            if (!info) {
-                explorer.innerHTML = showError('Invalid URL. Please enter a valid GitHub or Gitee repository URL.');
-                return;
-            }
-
-            try {
-                currentData = await fetchTree(info);
-                explorer.innerHTML = renderExplorer(currentData);
-                initResize();
-
-                // Attach tree click handler
-                document.getElementById('fileTree').addEventListener('click', handleTreeClick);
-            } catch (err) {
-                console.error('Load error:', err);
-                console.error('Stack:', err.stack);
-                explorer.innerHTML = showError(`Failed to load repository: ${err.message}`);
-            }
-        }
-
-        // ============================================
-        // Initialization
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-
-            const input = document.getElementById('urlInput');
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const url = input.value.trim();
-                    if (url) {
-                        loadRepository();
-                    }
-                }
-            });
-
-            // Load only if URL input has value
-            const url = input.value.trim();
-            if (url) {
-                loadRepository();
-            }
-        });
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </body>
+
 </html>
