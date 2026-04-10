@@ -609,6 +609,7 @@
         var micOff = false, camOff = false, spkOff = false
         var roomCode = ''
         var pendingRemoteStream = null
+        var remoteStreamSet = false
 
         function ids(c) { return { h: 'vr4-' + c + '-h', g: 'vr4-' + c + '-g' } }
 
@@ -710,9 +711,12 @@
                 c.peerConnection.addEventListener('iceconnectionstatechange', function () {
                     var s = c.peerConnection.iceConnectionState
                     console.log('ICE state:', s)
-                    if (s === 'failed') {
-                        rmsg('重连中...', 'err')
-                        setTimeout(function () { callTo(ids(roomCode).h) }, 2000)
+                    if (s === 'failed' || s === 'disconnected') {
+                        rmsg('连接中断，重连中...', 'err')
+                        remoteStreamSet = false   // 允许重新接收 stream
+                        setTimeout(function () {
+                            if (roomCode) callTo(ids(roomCode).h)
+                        }, 2000)
                     }
                 })
                 // 监听新轨道（某些浏览器 stream 事件不可靠）
@@ -726,31 +730,36 @@
 
         // 核心：设置远端流到 video 和 audio
         function setRemoteStream(rs) {
-            // 视频：先 muted 让浏览器允许 autoplay
+            if (remoteStreamSet) return   // 只处理第一次，防止多次调用互相打断
+            remoteStreamSet = true
+
             var rvid = document.getElementById('rvid')
             rvid.muted = true
             rvid.srcObject = rs
-            rvid.play().then(function () {
-                // 视频画面起来了，保持 muted（声音走独立 audio 标签）
-                document.getElementById('rph').style.display = 'none'
-                document.getElementById('rwrap').classList.add('on')
-            }).catch(function (e) {
-                console.log('video play err:', e)
-                pendingRemoteStream = rs
-                document.getElementById('unlock-bar').style.display = 'flex'
-            })
 
-            // 音频独立走 <audio> 标签，不走 video，避免回声
-            var raudio = document.getElementById('remote-audio')
-            raudio.muted = false
-            raudio.srcObject = rs
-            var p = raudio.play()
-            if (p !== undefined) {
-                p.catch(function () {
+            // 等 srcObject 稳定后再 play，避免 AbortError
+            setTimeout(function () {
+                rvid.play().then(function () {
+                    document.getElementById('rph').style.display = 'none'
+                    document.getElementById('rwrap').classList.add('on')
+                }).catch(function (e) {
+                    console.log('video play blocked, showing unlock:', e.name)
                     pendingRemoteStream = rs
                     document.getElementById('unlock-bar').style.display = 'flex'
                 })
-            }
+            }, 100)
+
+            // 音频走独立 <audio>，视频保持 muted 避免回声
+            var raudio = document.getElementById('remote-audio')
+            raudio.muted = false
+            raudio.srcObject = rs
+            setTimeout(function () {
+                var p = raudio.play()
+                if (p) p.catch(function () {
+                    pendingRemoteStream = rs
+                    document.getElementById('unlock-bar').style.display = 'flex'
+                })
+            }, 150)
 
             setupRemoteViz(rs)
         }
@@ -820,6 +829,7 @@
         }
 
         function hideRemote() {
+            remoteStreamSet = false
             document.getElementById('ritem').style.display = 'none'
             document.getElementById('ritem').classList.remove('on')
             document.getElementById('ssub').textContent = '等待中'
@@ -863,6 +873,7 @@
             if (audioCtx) audioCtx.close()
             peer = localStream = currentCall = audioCtx = pendingRemoteStream = null
             micOff = camOff = spkOff = false; roomCode = ''
+            remoteStreamSet = false
             document.getElementById('room').classList.remove('vis')
             document.getElementById('lobby').style.display = 'flex'
             document.getElementById('join-btn').disabled = false
