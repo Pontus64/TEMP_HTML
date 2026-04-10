@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>语音房间</title>
+    <title>视频房间</title>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
@@ -434,6 +434,64 @@
             background: rgba(231, 76, 60, 0.18);
         }
 
+        /* 视频区 */
+        .video-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .video-wrap {
+            position: relative;
+            aspect-ratio: 4/3;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .video-wrap.connected {
+            border-color: rgba(46, 204, 113, 0.3);
+        }
+
+        .video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-wrap .vid-label {
+            position: absolute;
+            bottom: 7px;
+            left: 9px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.8px;
+            pointer-events: none;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .video-placeholder .vicon {
+            font-size: 26px;
+            opacity: 0.3;
+        }
+
         /* 动画 */
         @keyframes fadeIn {
             from {
@@ -465,7 +523,7 @@
 
     <!-- ── 大厅 ── -->
     <div id="lobby">
-        <div class="logo">voice<span>room</span></div>
+        <div class="logo">video<span>room</span></div>
 
         <div class="room-input-wrap">
             <div class="room-label">输入房间号</div>
@@ -525,10 +583,28 @@
 
         <div class="status-msg" id="room-status">等待对方加入...</div>
 
+        <!-- 视频区 -->
+        <div class="video-grid" id="video-grid" style="display:none">
+            <div class="video-wrap" id="local-wrap">
+                <video id="local-video" autoplay muted playsinline></video>
+                <div class="video-placeholder" id="local-ph"><span class="vicon">📷</span><span>摄像头关闭</span></div>
+                <span class="vid-label">我</span>
+            </div>
+            <div class="video-wrap" id="remote-wrap">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="video-placeholder" id="remote-ph"><span class="vicon">🌐</span><span>等待对方</span></div>
+                <span class="vid-label">对方</span>
+            </div>
+        </div>
+
         <div class="controls">
             <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">
                 <span class="icon">🎤</span>
                 <span class="lbl">麦克风</span>
+            </button>
+            <button class="ctrl-btn" id="camera-btn" onclick="toggleCamera()">
+                <span class="icon">📹</span>
+                <span class="lbl">摄像头</span>
             </button>
             <button class="ctrl-btn" id="speaker-btn" onclick="toggleSpeaker()">
                 <span class="icon">🔊</span>
@@ -574,15 +650,21 @@
                 setLobbyStatus('房间号至少 2 位', 'err'); return
             }
 
-            setLobbyStatus('正在获取麦克风...')
+            setLobbyStatus('正在获取摄像头和麦克风...')
             document.getElementById('join-btn').disabled = true
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
             } catch (e) {
-                setLobbyStatus('麦克风获取失败：' + e.message, 'err')
-                document.getElementById('join-btn').disabled = false
-                return
+                // 摄像头失败则降级只用麦克风
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                    setLobbyStatus('摄像头不可用，仅语音模式')
+                } catch (e2) {
+                    setLobbyStatus('麦克风获取失败：' + e2.message, 'err')
+                    document.getElementById('join-btn').disabled = false
+                    return
+                }
             }
 
             setLobbyStatus('正在连接...')
@@ -675,12 +757,10 @@
         }
 
         function handleIncomingCall(incomingCall) {
-            // 自动接听
             incomingCall.answer(localStream)
             if (currentCall) currentCall.close()
             currentCall = incomingCall
             bindCallEvents(incomingCall)
-            showRemoteConnected()
             setRoomStatus('通话中', 'ok')
         }
 
@@ -688,7 +768,7 @@
             call.on('stream', remoteStream => {
                 playRemoteAudio(remoteStream)
                 setupRemoteViz(remoteStream)
-                showRemoteConnected()
+                showRemoteConnected(remoteStream)
                 setRoomStatus('通话中', 'ok')
                 document.getElementById('room-dot').className = 'room-status-dot connected'
             })
@@ -781,21 +861,47 @@
             const r = document.getElementById('room')
             r.classList.add('visible')
             document.getElementById('room-name-label').textContent = roomCode
+            // 显示本地视频
+            const vt = localStream?.getVideoTracks()
+            if (vt && vt.length > 0) {
+                document.getElementById('video-grid').style.display = 'grid'
+                const lv = document.getElementById('local-video')
+                lv.srcObject = localStream
+                document.getElementById('local-ph').style.display = 'none'
+            }
         }
 
-        function showRemoteConnected() {
+        function showRemoteConnected(remoteStream) {
             const ri = document.getElementById('remote-item')
             ri.style.display = 'flex'
             ri.classList.add('connected')
             document.getElementById('remote-sub').textContent = '通话中'
             document.getElementById('remote-avatar').textContent = '他'
             document.getElementById('remote-avatar').classList.add('green')
+            // 同步更新自己的状态
+            document.getElementById('self-sub').textContent = '通话中'
+            document.getElementById('self-item').classList.add('connected')
+            // 远端视频
+            if (remoteStream) {
+                document.getElementById('video-grid').style.display = 'grid'
+                const rv = document.getElementById('remote-video')
+                rv.srcObject = remoteStream
+                document.getElementById('remote-ph').style.display = 'none'
+                document.getElementById('remote-wrap').classList.add('connected')
+            }
         }
 
         function hideRemote() {
             const ri = document.getElementById('remote-item')
             ri.style.display = 'none'
             ri.classList.remove('connected')
+            document.getElementById('self-sub').textContent = '等待中'
+            document.getElementById('self-item').classList.remove('connected')
+            // 重置远端视频
+            const rv = document.getElementById('remote-video')
+            rv.srcObject = null
+            document.getElementById('remote-ph').style.display = 'flex'
+            document.getElementById('remote-wrap').classList.remove('connected')
         }
 
         function setSelfSub(t) {
@@ -824,14 +930,26 @@
             btn.querySelector('.lbl').textContent = muted ? '已静音' : '麦克风'
         }
 
-        function toggleSpeaker() {
-            speakerMuted = !speakerMuted
-            if (remoteAudioEl) remoteAudioEl.muted = speakerMuted
-            const btn = document.getElementById('speaker-btn')
-            btn.classList.toggle('active', speakerMuted)
-            btn.querySelector('.icon').textContent = speakerMuted ? '🔕' : '🔊'
-            btn.querySelector('.lbl').textContent = speakerMuted ? '已静音' : '扬声器'
+        let cameraOff = false
+        function toggleCamera() {
+            cameraOff = !cameraOff
+            localStream?.getVideoTracks().forEach(t => t.enabled = !cameraOff)
+            const lv = document.getElementById('local-video')
+            document.getElementById('local-ph').style.display = cameraOff ? 'flex' : 'none'
+            const btn = document.getElementById('camera-btn')
+            btn.classList.toggle('active', cameraOff)
+            btn.querySelector('.icon').textContent = cameraOff ? '🚫' : '📹'
+            btn.querySelector('.lbl').textContent = cameraOff ? '已关闭' : '摄像头'
         }
+
+
+        speakerMuted = !speakerMuted
+        if (remoteAudioEl) remoteAudioEl.muted = speakerMuted
+        const btn = document.getElementById('speaker-btn')
+        btn.classList.toggle('active', speakerMuted)
+        btn.querySelector('.icon').textContent = speakerMuted ? '🔕' : '🔊'
+        btn.querySelector('.lbl').textContent = speakerMuted ? '已静音' : '扬声器'
+}
 
         function leaveRoom() {
             currentCall?.close()
@@ -841,7 +959,7 @@
             audioCtx?.close()
             // 重置状态
             peer = localStream = currentCall = myRole = audioCtx = null
-            muted = speakerMuted = false
+            muted = speakerMuted = cameraOff = false
             roomCode = ''
             // 回大厅
             document.getElementById('room').classList.remove('visible')
@@ -850,6 +968,13 @@
             document.getElementById('room-input').value = ''
             setLobbyStatus('')
             // 重置按钮状态
+            document.getElementById('camera-btn').classList.remove('active')
+            document.getElementById('camera-btn').querySelector('.icon').textContent = '📹'
+            document.getElementById('local-video').srcObject = null
+            document.getElementById('remote-video').srcObject = null
+            document.getElementById('local-ph').style.display = 'flex'
+            document.getElementById('remote-ph').style.display = 'flex'
+            document.getElementById('video-grid').style.display = 'none'
             document.getElementById('mute-btn').classList.remove('active')
             document.getElementById('mute-btn').querySelector('.icon').textContent = '🎤'
             document.getElementById('speaker-btn').classList.remove('active')
