@@ -14,9 +14,7 @@
             --surface: #13131e;
             --border: #1f1f30;
             --accent: #7c6fff;
-            --accent-dim: rgba(124, 111, 255, 0.15);
             --green: #2ecc71;
-            --green-dim: rgba(46, 204, 113, 0.12);
             --red: #e74c3c;
             --text: #ddddf0;
             --muted: #55556a;
@@ -210,14 +208,15 @@
         }
 
         .vwrap.on {
-            border-color: rgba(46, 204, 113, 0.35)
+            border-color: rgba(46, 204, 113, 0.4)
         }
 
         .vwrap video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block
+            display: block;
+            background: #000
         }
 
         .vlbl {
@@ -225,12 +224,13 @@
             bottom: 7px;
             left: 9px;
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.65);
-            background: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.55);
             padding: 2px 7px;
             border-radius: 4px;
             letter-spacing: .8px;
-            pointer-events: none
+            pointer-events: none;
+            z-index: 2
         }
 
         .vph {
@@ -242,12 +242,36 @@
             justify-content: center;
             gap: 6px;
             color: var(--muted);
-            font-size: 11px
+            font-size: 11px;
+            z-index: 1;
+            pointer-events: none
         }
 
         .vph .ic {
             font-size: 24px;
             opacity: .3
+        }
+
+        /* 解锁音频横幅 */
+        #unlock-bar {
+            width: 100%;
+            background: rgba(124, 111, 255, 0.15);
+            border: 1px solid rgba(124, 111, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer
+        }
+
+        #unlock-bar:hover {
+            background: rgba(124, 111, 255, 0.22)
+        }
+
+        #unlock-bar span {
+            font-size: 12px;
+            color: var(--accent)
         }
 
         .pwrap {
@@ -283,7 +307,7 @@
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: var(--accent-dim);
+            background: rgba(124, 111, 255, 0.15);
             border: 1px solid rgba(124, 111, 255, 0.3);
             display: flex;
             align-items: center;
@@ -295,7 +319,7 @@
         }
 
         .av.g {
-            background: var(--green-dim);
+            background: rgba(46, 204, 113, 0.12);
             border-color: rgba(46, 204, 113, .3);
             color: var(--green)
         }
@@ -493,6 +517,10 @@
 </head>
 
 <body>
+
+    <!-- 隐藏的 audio 元素，避免自动播放被拦截 -->
+    <audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
     <div id="lobby">
         <div class="logo">video<span>room</span></div>
         <div style="width:100%;display:flex;flex-direction:column;gap:10px">
@@ -515,6 +543,12 @@
             </div>
             <div class="rdot w" id="rdot"></div>
         </div>
+
+        <!-- 点击解锁音频 -->
+        <div id="unlock-bar" onclick="unlockAudio()">
+            <span>🔇 点击此处开启声音</span>
+        </div>
+
         <div class="vgrid">
             <div class="vwrap" id="lwrap">
                 <video id="lvid" autoplay muted playsinline></video>
@@ -527,6 +561,7 @@
                 <span class="vlbl">对方</span>
             </div>
         </div>
+
         <div class="pwrap">
             <div class="plbl">参与者</div>
             <div class="pitem" id="sitem">
@@ -546,7 +581,7 @@
                 <div class="av g">他</div>
                 <div class="pinfo">
                     <div class="pname">对方</div>
-                    <div class="psub" id="rsub">通话中</div>
+                    <div class="psub">通话中</div>
                 </div>
                 <div class="vol" id="rvol">
                     <div class="vb" style="height:4px"></div>
@@ -556,6 +591,7 @@
                 </div>
             </div>
         </div>
+
         <div class="smsg" id="rmsg">等待对方加入...</div>
         <div class="ctrls">
             <button class="ctrl" id="bmic" onclick="toggleMic()"><span class="ic">🎤</span><span
@@ -569,10 +605,12 @@
     </div>
 
     <script>
-        var peer, localStream, currentCall, remoteAudio, audioCtx
-        var micOff = false, camOff = false, spkOff = false, roomCode = ''
+        var peer, localStream, currentCall, audioCtx
+        var micOff = false, camOff = false, spkOff = false
+        var roomCode = ''
+        var pendingRemoteStream = null
 
-        function ids(c) { return { h: 'vr3-' + c + '-h', g: 'vr3-' + c + '-g' } }
+        function ids(c) { return { h: 'vr4-' + c + '-h', g: 'vr4-' + c + '-g' } }
 
         function randomRoom() {
             var ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = ''
@@ -586,28 +624,42 @@
             document.getElementById('join-btn').disabled = true
             lmsg('正在获取摄像头...')
             navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-                .then(go).catch(function () {
+                .then(startWithStream)
+                .catch(function () {
                     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                        .then(function (s) { lmsg('仅语音模式'); go(s) })
-                        .catch(function (e) { lmsg('麦克风失败:' + e.message, 'err'); document.getElementById('join-btn').disabled = false })
+                        .then(function (s) { lmsg('仅语音模式'); startWithStream(s) })
+                        .catch(function (e) {
+                            lmsg('获取失败:' + e.message, 'err')
+                            document.getElementById('join-btn').disabled = false
+                        })
                 })
         }
 
-        function go(stream) {
+        function startWithStream(stream) {
             localStream = stream
-            lmsg('正在连接...')
             setupSelfViz()
+            lmsg('正在连接...')
             var id = ids(roomCode)
-            mkPeer(id.h, function () {
-                enterRoom(); ssub('等待中'); rmsg('等待对方加入...')
-                peer.on('call', answerCall)
-            }, function () {
-                mkPeer(id.g, function () {
-                    enterRoom(); ssub('连接中...'); rmsg('呼叫对方...')
-                    callTo(id.h)
+            mkPeer(id.h,
+                function () {
+                    enterRoom()
+                    ssub('等待中')
+                    rmsg('等待对方加入...')
                     peer.on('call', answerCall)
-                }, function () { lmsg('房间已满', 'err'); document.getElementById('join-btn').disabled = false })
-            })
+                },
+                function () {
+                    mkPeer(id.g,
+                        function () {
+                            enterRoom()
+                            ssub('连接中...')
+                            rmsg('呼叫对方...')
+                            peer.on('call', answerCall)
+                            callTo(id.h)
+                        },
+                        function () { lmsg('房间已满，请换房间号', 'err'); document.getElementById('join-btn').disabled = false }
+                    )
+                }
+            )
         }
 
         function mkPeer(pid, onOpen, onFail) {
@@ -622,71 +674,122 @@
             p.on('open', function () { peer = p; onOpen() })
             p.on('error', function (e) {
                 p.destroy()
-                if (e.type === 'unavailable-id') onFail()
-                else { lmsg('连接失败:' + e.type, 'err'); document.getElementById('join-btn').disabled = false }
+                if (e.type === 'unavailable-id') { onFail(); return }
+                lmsg('连接失败:' + e.type, 'err')
+                document.getElementById('join-btn').disabled = false
             })
         }
 
         function callTo(tid) {
             var c = peer.call(tid, localStream)
-            currentCall = c; bindCall(c)
+            currentCall = c
+            bindCall(c)
         }
 
         function answerCall(c) {
             c.answer(localStream)
             if (currentCall) currentCall.close()
-            currentCall = c; bindCall(c)
+            currentCall = c
+            bindCall(c)
         }
 
         function bindCall(c) {
             c.on('stream', function (rs) {
-                playRemote(rs); setupRemoteViz(rs); showRemote(rs)
+                console.log('收到 remote stream, 视频轨:', rs.getVideoTracks().length, '音频轨:', rs.getAudioTracks().length)
+                setRemoteStream(rs)
+                showRemote(rs)
                 rmsg('通话中', 'ok')
                 document.getElementById('rdot').className = 'rdot c'
             })
             c.on('close', function () {
-                rmsg('对方已离开...')
+                rmsg('对方已离开，等待重新连接...')
                 document.getElementById('rdot').className = 'rdot w'
                 hideRemote()
             })
             if (c.peerConnection) {
                 c.peerConnection.addEventListener('iceconnectionstatechange', function () {
-                    if (c.peerConnection.iceConnectionState === 'failed') {
+                    var s = c.peerConnection.iceConnectionState
+                    console.log('ICE state:', s)
+                    if (s === 'failed') {
                         rmsg('重连中...', 'err')
                         setTimeout(function () { callTo(ids(roomCode).h) }, 2000)
                     }
                 })
+                // 监听新轨道（某些浏览器 stream 事件不可靠）
+                c.peerConnection.addEventListener('track', function (e) {
+                    console.log('收到 track:', e.track.kind)
+                    var streams = e.streams
+                    if (streams && streams.length > 0) setRemoteStream(streams[0])
+                })
             }
         }
 
-        function playRemote(s) {
-            if (!remoteAudio) { remoteAudio = new Audio(); remoteAudio.autoplay = true; document.body.appendChild(remoteAudio) }
-            remoteAudio.srcObject = s; remoteAudio.muted = spkOff
+        // 核心：设置远端流到 video 和 audio
+        function setRemoteStream(rs) {
+            // 视频
+            var rvid = document.getElementById('rvid')
+            rvid.srcObject = rs
+            rvid.play().catch(function (e) { console.log('video play err:', e) })
+
+            // 音频：用 HTML 元素而不是 Web Audio，避免自动播放限制
+            var raudio = document.getElementById('remote-audio')
+            raudio.srcObject = rs
+            var p = raudio.play()
+            if (p !== undefined) {
+                p.catch(function () {
+                    // 自动播放被拦截，显示解锁按钮
+                    pendingRemoteStream = rs
+                    document.getElementById('unlock-bar').style.display = 'flex'
+                })
+            }
+
+            // 显示/隐藏视频占位
+            if (rs.getVideoTracks().length > 0) {
+                document.getElementById('rph').style.display = 'none'
+                document.getElementById('rwrap').classList.add('on')
+            }
+
+            setupRemoteViz(rs)
+        }
+
+        function unlockAudio() {
+            var raudio = document.getElementById('remote-audio')
+            if (pendingRemoteStream) raudio.srcObject = pendingRemoteStream
+            raudio.play().then(function () {
+                document.getElementById('unlock-bar').style.display = 'none'
+            }).catch(function (e) { console.log(e) })
         }
 
         function setupSelfViz() {
             try {
                 audioCtx = new AudioContext()
                 var src = audioCtx.createMediaStreamSource(localStream)
-                var a = audioCtx.createAnalyser(); a.fftSize = 256; src.connect(a); vizLoop('svol', a)
+                var a = audioCtx.createAnalyser(); a.fftSize = 256; src.connect(a)
+                vizLoop('svol', a)
             } catch (e) { }
         }
 
-        function setupRemoteViz(s) {
+        function setupRemoteViz(rs) {
             try {
                 if (!audioCtx) audioCtx = new AudioContext()
-                var src = audioCtx.createMediaStreamSource(s)
-                var a = audioCtx.createAnalyser(); a.fftSize = 256; src.connect(a); vizLoop('rvol', a)
+                var src = audioCtx.createMediaStreamSource(rs)
+                var a = audioCtx.createAnalyser(); a.fftSize = 256; src.connect(a)
+                vizLoop('rvol', a)
             } catch (e) { }
         }
 
-        function vizLoop(id, a) {
-            var el = document.getElementById(id), bars = el.querySelectorAll('.vb'), data = new Uint8Array(a.frequencyBinCount)
+        function vizLoop(elId, a) {
+            var el = document.getElementById(elId)
+            var bars = el.querySelectorAll('.vb')
+            var data = new Uint8Array(a.frequencyBinCount)
             function tick() {
                 a.getByteFrequencyData(data)
-                var avg = (data[2] + data[4] + data[6] + data[8]) / 4, sp = avg > 12
+                var avg = (data[2] + data[4] + data[6] + data[8]) / 4
+                var sp = avg > 12
                 el.parentElement.classList.toggle('speaking', sp)
-                bars.forEach(function (b, i) { b.style.height = (sp ? Math.min(20, 4 + data[i * 3] / 10) : [4, 8, 6, 4][i]) + 'px' })
+                bars.forEach(function (b, i) {
+                    b.style.height = (sp ? Math.min(20, 4 + data[i * 3] / 10) : [4, 8, 6, 4][i]) + 'px'
+                })
                 requestAnimationFrame(tick)
             }
             tick()
@@ -696,24 +799,21 @@
             document.getElementById('lobby').style.display = 'none'
             document.getElementById('room').classList.add('vis')
             document.getElementById('rlabel').textContent = roomCode
+            // 本地视频
+            var lvid = document.getElementById('lvid')
+            lvid.srcObject = localStream
+            lvid.play().catch(function () { })
             if (localStream.getVideoTracks().length > 0) {
-                document.getElementById('lvid').srcObject = localStream
                 document.getElementById('lph').style.display = 'none'
                 document.getElementById('lwrap').classList.add('on')
             }
         }
 
-        function showRemote(s) {
+        function showRemote(rs) {
             document.getElementById('ritem').style.display = 'flex'
             document.getElementById('ritem').classList.add('on')
-            document.getElementById('rsub').textContent = '通话中'
             document.getElementById('ssub').textContent = '通话中'
             document.getElementById('sitem').classList.add('on')
-            if (s.getVideoTracks().length > 0) {
-                document.getElementById('rvid').srcObject = s
-                document.getElementById('rph').style.display = 'none'
-                document.getElementById('rwrap').classList.add('on')
-            }
         }
 
         function hideRemote() {
@@ -724,6 +824,7 @@
             document.getElementById('rvid').srcObject = null
             document.getElementById('rph').style.display = 'flex'
             document.getElementById('rwrap').classList.remove('on')
+            document.getElementById('unlock-bar').style.display = 'none'
         }
 
         function toggleMic() {
@@ -745,7 +846,7 @@
 
         function toggleSpk() {
             spkOff = !spkOff
-            if (remoteAudio) remoteAudio.muted = spkOff
+            document.getElementById('remote-audio').muted = spkOff
             var b = document.getElementById('bspk'); b.classList.toggle('off', spkOff)
             b.querySelector('.ic').textContent = spkOff ? '🔕' : '🔊'
             b.querySelector('.lb').textContent = spkOff ? '已静音' : '扬声器'
@@ -755,9 +856,9 @@
             if (currentCall) currentCall.close()
             if (peer) peer.destroy()
             if (localStream) localStream.getTracks().forEach(function (t) { t.stop() })
-            if (remoteAudio) remoteAudio.srcObject = null
+            var ra = document.getElementById('remote-audio'); ra.srcObject = null; ra.pause()
             if (audioCtx) audioCtx.close()
-            peer = localStream = currentCall = remoteAudio = audioCtx = null
+            peer = localStream = currentCall = audioCtx = pendingRemoteStream = null
             micOff = camOff = spkOff = false; roomCode = ''
             document.getElementById('room').classList.remove('vis')
             document.getElementById('lobby').style.display = 'flex'
@@ -773,9 +874,11 @@
             document.getElementById('sitem').classList.remove('on')
             document.getElementById('ssub').textContent = '等待中'
             document.getElementById('rdot').className = 'rdot w'
+            document.getElementById('unlock-bar').style.display = 'none'
             lmsg('')
                 ;['bmic', 'bcam', 'bspk'].forEach(function (id) {
                     var b = document.getElementById(id); b.classList.remove('off')
+                    b.querySelector('.lb').textContent = { 'bmic': '麦克风', 'bcam': '摄像头', 'bspk': '扬声器' }[id]
                 })
             document.getElementById('bmic').querySelector('.ic').textContent = '🎤'
             document.getElementById('bcam').querySelector('.ic').textContent = '📹'
