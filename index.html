@@ -4,21 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Demo — NAT穿透演示</title>
+    <title>语音房间</title>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
         :root {
-            --bg: #0a0a0f;
-            --surface: #111118;
-            --border: #1e1e2e;
-            --accent: #00ff88;
-            --accent2: #0088ff;
-            --danger: #ff4466;
-            --text: #e8e8f0;
-            --muted: #6b6b80;
-            --radius: 12px;
+            --bg: #0d0d14;
+            --surface: #13131e;
+            --border: #1f1f30;
+            --accent: #7c6fff;
+            --accent-dim: rgba(124, 111, 255, 0.15);
+            --green: #2ecc71;
+            --green-dim: rgba(46, 204, 113, 0.12);
+            --red: #e74c3c;
+            --text: #ddddf0;
+            --muted: #55556a;
+            --r: 14px;
         }
 
         * {
@@ -30,232 +32,419 @@
         body {
             background: var(--bg);
             color: var(--text);
-            font-family: 'Syne', sans-serif;
-            min-height: 100vh;
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px 16px 48px;
+            justify-content: center;
+            padding: 24px 16px;
+            gap: 0;
         }
 
-        /* Header */
-        header {
-            width: 100%;
-            max-width: 860px;
+        /* ── 进入房间界面 ── */
+        #lobby {
             display: flex;
-            align-items: baseline;
-            gap: 12px;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            width: 100%;
+            max-width: 360px;
+            animation: fadeIn .4s ease;
         }
 
-        header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        .logo {
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        header .sub {
-            font-family: 'JetBrains Mono', monospace;
+        .logo span {
+            color: var(--accent);
+        }
+
+        .room-input-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .room-label {
             font-size: 11px;
             color: var(--muted);
+            letter-spacing: 1px;
         }
 
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            margin-left: auto;
-        }
-
-        .dot.red {
-            background: var(--danger);
-            box-shadow: 0 0 8px var(--danger);
-        }
-
-        /* ID Panel */
-        .panel {
+        .room-input {
             width: 100%;
-            max-width: 860px;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            margin-bottom: 16px;
-        }
-
-        .panel-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-        }
-
-        .id-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .id-box {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--accent);
-            background: rgba(0, 255, 136, 0.07);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 8px;
-            padding: 10px 16px;
-            letter-spacing: 1px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .id-box.placeholder {
-            color: var(--muted);
-            font-weight: 300;
-        }
-
-        /* Input */
-        input[type="text"] {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--text);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            padding: 10px 14px;
+            font-size: 22px;
+            font-weight: 600;
+            padding: 16px 20px;
+            letter-spacing: 3px;
+            text-align: center;
+            text-transform: uppercase;
             outline: none;
-            flex: 1;
-            min-width: 200px;
             transition: border-color .2s;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--accent2);
+        .room-input:focus {
+            border-color: var(--accent);
         }
 
-        input[type="text"]::placeholder {
+        .room-input::placeholder {
             color: var(--muted);
+            font-weight: 300;
+            letter-spacing: 2px;
         }
 
-        /* Buttons */
-        button {
-            font-family: 'Syne', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: all .15s;
-            white-space: nowrap;
+        .hint {
+            font-size: 11px;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.7;
         }
 
-        .btn-primary {
+        .join-btn {
+            width: 100%;
             background: var(--accent);
-            color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 16px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all .15s;
         }
 
-        .btn-primary:hover {
-            background: #00e87a;
+        .join-btn:hover {
+            background: #9085ff;
             transform: translateY(-1px);
         }
 
-        .btn-primary:active {
-            transform: scale(0.97);
+        .join-btn:active {
+            transform: scale(0.98);
         }
 
-        .btn-primary:disabled {
+        .join-btn:disabled {
             opacity: 0.35;
             cursor: not-allowed;
             transform: none;
         }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--text);
+        .random-btn {
+            background: none;
             border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--muted);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .btn-danger {
-            background: transparent;
-            color: var(--danger);
-            border: 1px solid rgba(255, 68, 102, 0.35);
-        }
-
-        .btn-danger:hover {
-            background: rgba(255, 68, 102, 0.1);
-        }
-
-        .btn-copy {
-            background: transparent;
+            border-radius: 8px;
             color: var(--muted);
-            border: 1px solid var(--border);
-            padding: 10px 14px;
-            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all .15s;
+            align-self: center;
         }
 
-        .btn-copy:hover {
+        .random-btn:hover {
             color: var(--text);
             border-color: var(--muted);
         }
 
-        .btn-copy.copied {
-            color: var(--accent);
-            border-color: rgba(0, 255, 136, 0.3);
+        /* ── 房间界面 ── */
+        #room {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn .35s ease;
         }
 
-        /* Status bar */
-        .status-bar {
+        #room.visible {
+            display: flex;
+        }
+
+        .room-header {
             width: 100%;
-            max-width: 860px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--muted);
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
         }
 
-        .status-indicator {
-            width: 6px;
-            height: 6px;
+        .room-name {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--accent);
+        }
+
+        .room-status-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: var(--muted);
+            transition: all .3s;
             flex-shrink: 0;
         }
 
-        .status-indicator.online {
-            background: var(--accent);
-            box-shadow: 0 0 6px var(--accent);
+        .room-status-dot.waiting {
+            background: #f39c12;
+            box-shadow: 0 0 8px #f39c12;
+            animation: pulse 1.4s ease-in-out infinite;
         }
 
-        .status-indicator.calling {
-            background: #ffaa00;
-            box-shadow: 0 0 6px #ffaa00;
-            animation: pulse 1s ease-in-out infinite;
+        .room-status-dot.connected {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: none;
         }
 
-        .status-indicator.connected {
-            background: var(--accent2);
-            box-shadow: 0 0 6px var(--accent2);
+        /* 参与者列表 */
+        .peers-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .status-indicator.error {
-            background: var(--danger);
+        .peers-label {
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .peer-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: border-color .3s;
+        }
+
+        .peer-item.connected {
+            border-color: rgba(46, 204, 113, 0.3);
+        }
+
+        .peer-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-dim);
+            border: 1px solid rgba(124, 111, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .peer-avatar.green {
+            background: var(--green-dim);
+            border-color: rgba(46, 204, 113, 0.3);
+            color: var(--green);
+        }
+
+        .peer-info {
+            flex: 1;
+        }
+
+        .peer-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .peer-sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .peer-vol {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 20px;
+        }
+
+        .vol-bar {
+            width: 3px;
+            border-radius: 2px;
+            background: var(--muted);
+            transition: height .1s, background .1s;
+        }
+
+        /* 音量可视化 */
+        .speaking .vol-bar {
+            background: var(--green);
+        }
+
+        .speaking .vol-bar:nth-child(1) {
+            animation: vol1 .5s ease-in-out infinite;
+        }
+
+        .speaking .vol-bar:nth-child(2) {
+            animation: vol2 .5s ease-in-out infinite .1s;
+        }
+
+        .speaking .vol-bar:nth-child(3) {
+            animation: vol3 .5s ease-in-out infinite .2s;
+        }
+
+        .speaking .vol-bar:nth-child(4) {
+            animation: vol1 .5s ease-in-out infinite .05s;
+        }
+
+        @keyframes vol1 {
+
+            0%,
+            100% {
+                height: 4px
+            }
+
+            50% {
+                height: 14px
+            }
+        }
+
+        @keyframes vol2 {
+
+            0%,
+            100% {
+                height: 8px
+            }
+
+            50% {
+                height: 18px
+            }
+        }
+
+        @keyframes vol3 {
+
+            0%,
+            100% {
+                height: 6px
+            }
+
+            50% {
+                height: 12px
+            }
+        }
+
+        /* 状态消息 */
+        .status-msg {
+            font-size: 11px;
+            color: var(--muted);
+            text-align: center;
+            min-height: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-msg.ok {
+            color: var(--green);
+        }
+
+        .status-msg.err {
+            color: var(--red);
+        }
+
+        /* 控制按钮 */
+        .controls {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+        }
+
+        .ctrl-btn {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 14px 10px;
+            cursor: pointer;
+            transition: all .15s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--muted);
+        }
+
+        .ctrl-btn.active {
+            background: rgba(231, 76, 60, 0.12);
+            border-color: rgba(231, 76, 60, 0.4);
+            color: var(--red);
+        }
+
+        .ctrl-btn .icon {
+            font-size: 20px;
+        }
+
+        .ctrl-btn .lbl {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .ctrl-btn.active .lbl {
+            color: inherit;
+        }
+
+        .leave-btn {
+            width: 100%;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 10px;
+            color: var(--red);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 14px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all .15s;
+        }
+
+        .leave-btn:hover {
+            background: rgba(231, 76, 60, 0.18);
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
         }
 
         @keyframes pulse {
@@ -269,511 +458,402 @@
                 opacity: 0.4
             }
         }
-
-        /* Video grid */
-        .video-grid {
-            width: 100%;
-            max-width: 860px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        @media (max-width: 560px) {
-            .video-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .video-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            position: relative;
-            aspect-ratio: 4/3;
-        }
-
-        .video-card.active {
-            border-color: rgba(0, 136, 255, 0.4);
-        }
-
-        .video-label {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(0, 0, 0, 0.55);
-            padding: 3px 8px;
-            border-radius: 4px;
-            z-index: 2;
-            letter-spacing: 0.8px;
-        }
-
-        .video-placeholder {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: var(--muted);
-        }
-
-        .video-placeholder .icon {
-            font-size: 32px;
-            opacity: 0.3;
-        }
-
-        .video-placeholder span {
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-
-        video.visible {
-            display: block;
-        }
-
-        /* ICE debug panel */
-        .debug-panel {
-            width: 100%;
-            max-width: 860px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            margin-bottom: 16px;
-        }
-
-        .debug-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .debug-toggle {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: var(--muted);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            cursor: pointer;
-            padding: 2px 6px;
-        }
-
-        .debug-toggle:hover {
-            color: var(--text);
-        }
-
-        .log-list {
-            max-height: 160px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .log-list.open {
-            display: block;
-        }
-
-        .log-entry {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            padding: 3px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            display: flex;
-            gap: 10px;
-        }
-
-        .log-time {
-            color: var(--muted);
-            flex-shrink: 0;
-        }
-
-        .log-msg.ice {
-            color: #00aaff;
-        }
-
-        .log-msg.ok {
-            color: var(--accent);
-        }
-
-        .log-msg.err {
-            color: var(--danger);
-        }
-
-        .log-msg.info {
-            color: var(--text);
-        }
-
-        /* Controls row */
-        .controls {
-            width: 100%;
-            max-width: 860px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        /* How-it-works strip */
-        .howto {
-            width: 100%;
-            max-width: 860px;
-            margin-top: 32px;
-            border-top: 1px solid var(--border);
-            padding-top: 24px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-        }
-
-        .howto-step {
-            padding: 14px 16px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-        }
-
-        .howto-step .num {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--accent);
-            margin-bottom: 6px;
-        }
-
-        .howto-step .title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .howto-step .desc {
-            font-size: 11px;
-            color: var(--muted);
-            line-height: 1.6;
-        }
     </style>
 </head>
 
 <body>
 
-    <header>
-        <h1>WebRTC P2P Demo</h1>
-        <span class="sub">NAT穿透 · ICE · STUN · TURN</span>
-        <div class="dot red" id="header-dot"></div>
-    </header>
+    <!-- ── 大厅 ── -->
+    <div id="lobby">
+        <div class="logo">voice<span>room</span></div>
 
-    <!-- 状态栏 -->
-    <div class="status-bar">
-        <div class="status-indicator" id="status-dot"></div>
-        <span id="status-text">正在连接 PeerJS 服务器...</span>
-    </div>
-
-    <!-- 我的 ID -->
-    <div class="panel">
-        <div class="panel-title">① 你的 Peer ID（发给对方）</div>
-        <div class="id-row">
-            <div class="id-box placeholder" id="my-id-box">生成中...</div>
-            <button class="btn-copy" id="copy-btn" onclick="copyId()" disabled>复制</button>
+        <div class="room-input-wrap">
+            <div class="room-label">输入房间号</div>
+            <input class="room-input" id="room-input" maxlength="6" placeholder="ABCDEF"
+                oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+                onkeydown="if(event.key==='Enter')joinRoom()" />
+            <div class="hint">双方输入相同的房间号即可通话<br>无需交换任何 ID</div>
         </div>
+
+        <button class="random-btn" onclick="randomRoom()">🎲 随机生成房间号</button>
+        <button class="join-btn" id="join-btn" onclick="joinRoom()">加入房间</button>
+
+        <div class="status-msg" id="lobby-status"></div>
     </div>
 
-    <!-- 拨号面板 -->
-    <div class="panel">
-        <div class="panel-title">② 输入对方的 Peer ID 并拨号</div>
-        <div class="id-row">
-            <input type="text" id="remote-id-input" placeholder="粘贴对方的 ID..." />
-            <button class="btn-primary" id="call-btn" onclick="startCall()" disabled>📞 发起通话</button>
-            <button class="btn-danger" id="hangup-btn" onclick="hangUp()" style="display:none">挂断</button>
-        </div>
-    </div>
-
-    <!-- 视频区 -->
-    <div class="video-grid">
-        <div class="video-card" id="local-card">
-            <span class="video-label">LOCAL</span>
-            <div class="video-placeholder" id="local-placeholder">
-                <span class="icon">📷</span>
-                <span>本地摄像头</span>
+    <!-- ── 房间 ── -->
+    <div id="room">
+        <div class="room-header">
+            <div>
+                <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-bottom:4px">ROOM</div>
+                <div class="room-name" id="room-name-label"></div>
             </div>
-            <video id="local-video" autoplay muted playsinline></video>
+            <div class="room-status-dot waiting" id="room-dot"></div>
         </div>
-        <div class="video-card" id="remote-card">
-            <span class="video-label">REMOTE · P2P</span>
-            <div class="video-placeholder" id="remote-placeholder">
-                <span class="icon">🌐</span>
-                <span>等待对方连接</span>
+
+        <div class="peers-wrap">
+            <div class="peers-label">参与者</div>
+            <!-- 自己 -->
+            <div class="peer-item" id="self-item">
+                <div class="peer-avatar green" id="self-avatar">我</div>
+                <div class="peer-info">
+                    <div class="peer-name">我</div>
+                    <div class="peer-sub" id="self-sub">正在连接...</div>
+                </div>
+                <div class="peer-vol" id="self-vol">
+                    <div class="vol-bar" style="height:4px"></div>
+                    <div class="vol-bar" style="height:8px"></div>
+                    <div class="vol-bar" style="height:6px"></div>
+                    <div class="vol-bar" style="height:4px"></div>
+                </div>
             </div>
-            <video id="remote-video" autoplay playsinline></video>
+            <!-- 对方（动态插入） -->
+            <div class="peer-item" id="remote-item" style="display:none">
+                <div class="peer-avatar" id="remote-avatar">?</div>
+                <div class="peer-info">
+                    <div class="peer-name">对方</div>
+                    <div class="peer-sub" id="remote-sub">等待连接...</div>
+                </div>
+                <div class="peer-vol" id="remote-vol">
+                    <div class="vol-bar" style="height:4px"></div>
+                    <div class="vol-bar" style="height:8px"></div>
+                    <div class="vol-bar" style="height:6px"></div>
+                    <div class="vol-bar" style="height:4px"></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- ICE 调试面板 -->
-    <div class="debug-panel">
-        <div class="debug-title">
-            <span>ICE / NAT 穿透日志</span>
-            <button class="debug-toggle" id="log-toggle" onclick="toggleLog()">展开 ▾</button>
-        </div>
-        <div class="log-list" id="log-list"></div>
-    </div>
+        <div class="status-msg" id="room-status">等待对方加入...</div>
 
-    <!-- 控制按钮 -->
-    <div class="controls">
-        <button class="btn-secondary" onclick="toggleMute()" id="mute-btn">🎤 静音</button>
-        <button class="btn-secondary" onclick="toggleVideo()" id="video-btn">📹 关闭画面</button>
-    </div>
+        <div class="controls">
+            <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">
+                <span class="icon">🎤</span>
+                <span class="lbl">麦克风</span>
+            </button>
+            <button class="ctrl-btn" id="speaker-btn" onclick="toggleSpeaker()">
+                <span class="icon">🔊</span>
+                <span class="lbl">扬声器</span>
+            </button>
+        </div>
 
-    <!-- 工作原理说明 -->
-    <div class="howto">
-        <div class="howto-step">
-            <div class="num">STEP 01</div>
-            <div class="title">获取 Peer ID</div>
-            <div class="desc">连接 PeerJS 云端信令服务器，获得唯一 ID。底层走 WebSocket。</div>
-        </div>
-        <div class="howto-step">
-            <div class="num">STEP 02</div>
-            <div class="title">STUN 发现地址</div>
-            <div class="desc">PeerJS 内置 Google STUN，自动探测你的公网 IP:Port（ICE candidate）。</div>
-        </div>
-        <div class="howto-step">
-            <div class="num">STEP 03</div>
-            <div class="title">ICE 打洞</div>
-            <div class="desc">双方交换 candidate，尝试 UDP 打洞建立 P2P 直连。</div>
-        </div>
-        <div class="howto-step">
-            <div class="num">STEP 04</div>
-            <div class="title">TURN 兜底</div>
-            <div class="desc">打洞失败时自动走 TURN 中转。音视频走 SRTP 加密传输。</div>
-        </div>
+        <button class="leave-btn" onclick="leaveRoom()">← 离开房间</button>
     </div>
 
     <script>
+        // ──────────────────────────────────────────
+        // 核心思路：
+        //  房间号 → 两个固定 Peer ID（host / guest）
+        //  先到的人拿 host ID 等待
+        //  后到的人拿 guest ID 主动呼叫 host
+        //  任何一方离开后，下一个进来的人自动顶上
+        // ──────────────────────────────────────────
+
         let peer, localStream, currentCall
-        let muted = false, videoOff = false
-        let logOpen = false
+        let myRole = null  // 'host' | 'guest'
+        let muted = false, speakerMuted = false
+        let roomCode = ''
+        let audioCtx, analyserSelf, analyserRemote
 
-        // ─── PeerJS 初始化 ───────────────────────────────
-        // PeerJS 免费云服务器帮你处理：
-        //  - WebSocket 信令
-        //  - STUN（Google stun.l.google.com:19302）
-        //  - 内置 TURN 兜底
-        peer = new Peer(undefined, {
-            // 不传 host 就用 PeerJS 免费云服务器 (broker.peerjs.com)
-            debug: 2,
-            config: {
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    // 如果你有自己的 TURN 服务器，在这里加：
-                    // { urls: 'turn:your.server.com:3478', username: 'u', credential: 'p' }
-                ]
+        function roomToIds(code) {
+            return {
+                hostId: 'vr-' + code + '-host',
+                guestId: 'vr-' + code + '-guest'
             }
-        })
+        }
 
-        peer.on('open', id => {
-            setStatus('online', `已就绪 · Peer ID: ${id}`)
-            document.getElementById('my-id-box').textContent = id
-            document.getElementById('my-id-box').classList.remove('placeholder')
-            document.getElementById('copy-btn').disabled = false
-            document.getElementById('header-dot').classList.remove('red')
-            document.getElementById('call-btn').disabled = false
-            addLog('ok', `已连接 PeerJS 信令服务器，ID: ${id}`)
-        })
+        function randomRoom() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+            let r = ''
+            for (let i = 0; i < 6; i++) r += chars[Math.floor(Math.random() * chars.length)]
+            document.getElementById('room-input').value = r
+        }
 
-        peer.on('error', err => {
-            setStatus('error', `错误: ${err.type}`)
-            addLog('err', `PeerJS 错误: ${err.type} — ${err.message}`)
-        })
+        async function joinRoom() {
+            roomCode = document.getElementById('room-input').value.trim().toUpperCase()
+            if (roomCode.length < 2) {
+                setLobbyStatus('房间号至少 2 位', 'err'); return
+            }
 
-        // ─── 接听来电 ────────────────────────────────────
-        peer.on('call', async incomingCall => {
-            addLog('info', `收到来电，caller ID: ${incomingCall.peer}`)
-            setStatus('calling', `收到来电，正在接听...`)
+            setLobbyStatus('正在获取麦克风...')
+            document.getElementById('join-btn').disabled = true
 
-            const stream = await getLocalStream()
-            // 自动接听（你可以改成弹确认框）
-            incomingCall.answer(stream)
-            currentCall = incomingCall
-            bindCallEvents(incomingCall)
-            showHangup()
-        })
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            } catch (e) {
+                setLobbyStatus('麦克风获取失败：' + e.message, 'err')
+                document.getElementById('join-btn').disabled = false
+                return
+            }
 
-        // ─── 发起通话 ────────────────────────────────────
-        async function startCall() {
-            const remoteId = document.getElementById('remote-id-input').value.trim()
-            if (!remoteId) return alert('请输入对方的 Peer ID')
-            if (remoteId === peer.id) return alert('不能呼叫自己')
+            setLobbyStatus('正在连接...')
+            setupSelfViz()
 
-            setStatus('calling', `正在呼叫 ${remoteId}...`)
-            addLog('info', `发起呼叫 → ${remoteId}`)
+            const { hostId, guestId } = roomToIds(roomCode)
 
-            const stream = await getLocalStream()
-            // PeerJS 内部：
-            //  1. 通过 WebSocket 信令服务器把 Offer (SDP) 发给对方
-            //  2. 收集 ICE Candidate（STUN 查公网地址）
-            //  3. 交换 Candidate，尝试打洞
-            const call = peer.call(remoteId, stream)
+            // 先尝试注册为 host
+            tryRegister(hostId, guestId)
+        }
+
+        function tryRegister(hostId, guestId) {
+            const p = new Peer(hostId, {
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                    ]
+                }
+            })
+
+            p.on('open', id => {
+                // 成功注册为 host
+                peer = p
+                myRole = 'host'
+                enterRoom()
+                setRoomStatus('等待对方加入...', '')
+                setSelfSub('等待中')
+
+                // 监听来电
+                peer.on('call', incomingCall => {
+                    handleIncomingCall(incomingCall)
+                })
+            })
+
+            p.on('error', err => {
+                if (err.type === 'unavailable-id') {
+                    // host 位置已被占用，我是 guest
+                    p.destroy()
+                    registerAsGuest(hostId, guestId)
+                } else {
+                    setLobbyStatus('连接失败: ' + err.message, 'err')
+                    document.getElementById('join-btn').disabled = false
+                }
+            })
+        }
+
+        function registerAsGuest(hostId, guestId) {
+            const p = new Peer(guestId, {
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                    ]
+                }
+            })
+
+            p.on('open', id => {
+                peer = p
+                myRole = 'guest'
+                enterRoom()
+                setSelfSub('已就绪')
+                setRoomStatus('正在呼叫对方...', '')
+                // 主动呼叫 host
+                callPeer(hostId)
+            })
+
+            p.on('error', err => {
+                if (err.type === 'unavailable-id') {
+                    // 房间满了（已有两人）
+                    p.destroy()
+                    setLobbyStatus('房间已满，请换一个房间号', 'err')
+                    document.getElementById('join-btn').disabled = false
+                } else {
+                    setLobbyStatus('连接失败: ' + err.message, 'err')
+                    document.getElementById('join-btn').disabled = false
+                }
+            })
+
+            // guest 也监听来电（host 离开后重新进入时会呼 guest）
+            p.on('call', incomingCall => {
+                handleIncomingCall(incomingCall)
+            })
+        }
+
+        function callPeer(targetId) {
+            const call = peer.call(targetId, localStream)
             currentCall = call
             bindCallEvents(call)
-            showHangup()
+        }
+
+        function handleIncomingCall(incomingCall) {
+            // 自动接听
+            incomingCall.answer(localStream)
+            if (currentCall) currentCall.close()
+            currentCall = incomingCall
+            bindCallEvents(incomingCall)
+            showRemoteConnected()
+            setRoomStatus('通话中', 'ok')
         }
 
         function bindCallEvents(call) {
-            // 监听 ICE 连接状态（需要拿到底层 RTCPeerConnection）
             call.on('stream', remoteStream => {
-                setStatus('connected', `P2P 已连接！`)
-                addLog('ok', `媒体流已建立，开始 P2P 传输`)
-                const rv = document.getElementById('remote-video')
-                rv.srcObject = remoteStream
-                rv.classList.add('visible')
-                document.getElementById('remote-placeholder').style.display = 'none'
-                document.getElementById('remote-card').classList.add('active')
+                playRemoteAudio(remoteStream)
+                setupRemoteViz(remoteStream)
+                showRemoteConnected()
+                setRoomStatus('通话中', 'ok')
+                document.getElementById('room-dot').className = 'room-status-dot connected'
             })
 
             call.on('close', () => {
-                addLog('info', '通话已结束')
-                setStatus('online', '通话结束，已就绪')
-                resetRemote()
+                setRoomStatus('对方已离开，等待重新连接...', '')
+                document.getElementById('room-dot').className = 'room-status-dot waiting'
+                hideRemote()
             })
 
-            call.on('error', err => {
-                addLog('err', `通话错误: ${err}`)
+            call.on('error', e => {
+                setRoomStatus('连接错误: ' + e, 'err')
             })
 
-            // 拿底层 RTCPeerConnection，监听 ICE 状态变化
-            call.peerConnection?.addEventListener('icecandidate', e => {
-                if (e.candidate) {
-                    // candidate.type 说明这是哪种路径：
-                    //   host  → 本机局域网地址
-                    //   srflx → STUN 发现的公网地址
-                    //   relay → TURN 中转地址（打洞失败兜底）
-                    const t = e.candidate.type || 'host'
-                    const addr = e.candidate.address || '?'
-                    addLog('ice', `发现 candidate [${t}] ${addr}`)
-                }
-            })
-
+            // 监听 ICE 状态（调试用）
             call.peerConnection?.addEventListener('iceconnectionstatechange', () => {
                 const s = call.peerConnection.iceConnectionState
-                // checking   → 正在尝试打洞
-                // connected  → 打洞成功，P2P 建立
-                // completed  → 选出最优路径
-                // failed     → 全部失败，需要 TURN
-                const msgMap = {
-                    checking: '正在尝试 NAT 打洞...',
-                    connected: 'NAT 打洞成功，P2P 直连！',
-                    completed: '最优路径已选定',
-                    failed: '打洞失败，尝试 TURN 中转',
-                    disconnected: '连接中断',
+                if (s === 'failed') {
+                    setRoomStatus('NAT 穿透失败，尝试重连...', 'err')
+                    // 重新呼叫
+                    setTimeout(() => {
+                        if (myRole === 'guest') {
+                            const { hostId } = roomToIds(roomCode)
+                            callPeer(hostId)
+                        }
+                    }, 2000)
                 }
-                addLog(s === 'connected' || s === 'completed' ? 'ok' : 'ice',
-                    `ICE 状态: ${s}${msgMap[s] ? ' — ' + msgMap[s] : ''}`)
             })
         }
 
-        // ─── 获取本地摄像头 ──────────────────────────────
-        async function getLocalStream() {
-            if (localStream) return localStream
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                const lv = document.getElementById('local-video')
-                lv.srcObject = localStream
-                lv.classList.add('visible')
-                document.getElementById('local-placeholder').style.display = 'none'
-                addLog('ok', '本地摄像头/麦克风已就绪')
-                return localStream
-            } catch (e) {
-                addLog('err', `摄像头获取失败: ${e.message}`)
-                throw e
+        // ── 音频播放 ──────────────────────────────
+        let remoteAudioEl = null
+        function playRemoteAudio(stream) {
+            if (!remoteAudioEl) {
+                remoteAudioEl = new Audio()
+                remoteAudioEl.autoplay = true
+                document.body.appendChild(remoteAudioEl)
             }
+            remoteAudioEl.srcObject = stream
+            if (speakerMuted) remoteAudioEl.muted = true
         }
 
-        // ─── 挂断 ────────────────────────────────────────
-        function hangUp() {
-            currentCall?.close()
-            resetRemote()
-            setStatus('online', '已挂断，就绪')
-            document.getElementById('hangup-btn').style.display = 'none'
-            document.getElementById('call-btn').style.display = ''
+        // ── 音量可视化 ────────────────────────────
+        function setupSelfViz() {
+            try {
+                audioCtx = new AudioContext()
+                const src = audioCtx.createMediaStreamSource(localStream)
+                analyserSelf = audioCtx.createAnalyser()
+                analyserSelf.fftSize = 256
+                src.connect(analyserSelf)
+                vizLoop('self-vol', analyserSelf)
+            } catch (e) { }
         }
 
-        function resetRemote() {
-            const rv = document.getElementById('remote-video')
-            rv.srcObject = null
-            rv.classList.remove('visible')
-            document.getElementById('remote-placeholder').style.display = ''
-            document.getElementById('remote-card').classList.remove('active')
+        function setupRemoteViz(stream) {
+            try {
+                if (!audioCtx) audioCtx = new AudioContext()
+                const src = audioCtx.createMediaStreamSource(stream)
+                analyserRemote = audioCtx.createAnalyser()
+                analyserRemote.fftSize = 256
+                src.connect(analyserRemote)
+                vizLoop('remote-vol', analyserRemote)
+            } catch (e) { }
         }
 
-        // ─── 静音 / 关画面 ───────────────────────────────
+        function vizLoop(elId, analyser) {
+            const el = document.getElementById(elId)
+            const bars = el.querySelectorAll('.vol-bar')
+            const data = new Uint8Array(analyser.frequencyBinCount)
+            const THRESHOLD = 12
+
+            function tick() {
+                analyser.getByteFrequencyData(data)
+                const avg = (data[2] + data[4] + data[6] + data[8]) / 4
+                const speaking = avg > THRESHOLD
+                el.parentElement.classList.toggle('speaking', speaking)
+                bars.forEach((b, i) => {
+                    if (!speaking) { b.style.height = [4, 8, 6, 4][i] + 'px'; return }
+                    b.style.height = Math.min(20, 4 + data[i * 3] / 10) + 'px'
+                    b.style.background = 'var(--green)'
+                })
+                requestAnimationFrame(tick)
+            }
+            tick()
+        }
+
+        // ── UI helpers ────────────────────────────
+        function enterRoom() {
+            document.getElementById('lobby').style.display = 'none'
+            const r = document.getElementById('room')
+            r.classList.add('visible')
+            document.getElementById('room-name-label').textContent = roomCode
+        }
+
+        function showRemoteConnected() {
+            const ri = document.getElementById('remote-item')
+            ri.style.display = 'flex'
+            ri.classList.add('connected')
+            document.getElementById('remote-sub').textContent = '通话中'
+            document.getElementById('remote-avatar').textContent = '他'
+            document.getElementById('remote-avatar').classList.add('green')
+        }
+
+        function hideRemote() {
+            const ri = document.getElementById('remote-item')
+            ri.style.display = 'none'
+            ri.classList.remove('connected')
+        }
+
+        function setSelfSub(t) {
+            document.getElementById('self-sub').textContent = t
+        }
+
+        function setRoomStatus(msg, type) {
+            const el = document.getElementById('room-status')
+            el.textContent = msg
+            el.className = 'status-msg' + (type ? ' ' + type : '')
+        }
+
+        function setLobbyStatus(msg, type) {
+            const el = document.getElementById('lobby-status')
+            el.textContent = msg
+            el.className = 'status-msg' + (type ? ' ' + type : '')
+        }
+
+        // ── 控制 ──────────────────────────────────
         function toggleMute() {
-            if (!localStream) return
             muted = !muted
-            localStream.getAudioTracks().forEach(t => t.enabled = !muted)
-            document.getElementById('mute-btn').textContent = muted ? '🔇 取消静音' : '🎤 静音'
+            localStream?.getAudioTracks().forEach(t => t.enabled = !muted)
+            const btn = document.getElementById('mute-btn')
+            btn.classList.toggle('active', muted)
+            btn.querySelector('.icon').textContent = muted ? '🔇' : '🎤'
+            btn.querySelector('.lbl').textContent = muted ? '已静音' : '麦克风'
         }
 
-        function toggleVideo() {
-            if (!localStream) return
-            videoOff = !videoOff
-            localStream.getVideoTracks().forEach(t => t.enabled = !videoOff)
-            document.getElementById('video-btn').textContent = videoOff ? '📷 开启画面' : '📹 关闭画面'
+        function toggleSpeaker() {
+            speakerMuted = !speakerMuted
+            if (remoteAudioEl) remoteAudioEl.muted = speakerMuted
+            const btn = document.getElementById('speaker-btn')
+            btn.classList.toggle('active', speakerMuted)
+            btn.querySelector('.icon').textContent = speakerMuted ? '🔕' : '🔊'
+            btn.querySelector('.lbl').textContent = speakerMuted ? '已静音' : '扬声器'
         }
 
-        // ─── 工具函数 ────────────────────────────────────
-        function setStatus(type, msg) {
-            document.getElementById('status-dot').className = `status-indicator ${type}`
-            document.getElementById('status-text').textContent = msg
-        }
-
-        function showHangup() {
-            document.getElementById('hangup-btn').style.display = ''
-            document.getElementById('call-btn').style.display = 'none'
-        }
-
-        function copyId() {
-            const id = document.getElementById('my-id-box').textContent
-            navigator.clipboard.writeText(id).then(() => {
-                const btn = document.getElementById('copy-btn')
-                btn.textContent = '已复制 ✓'
-                btn.classList.add('copied')
-                setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied') }, 2000)
-            })
-        }
-
-        function toggleLog() {
-            logOpen = !logOpen
-            document.getElementById('log-list').classList.toggle('open', logOpen)
-            document.getElementById('log-toggle').textContent = logOpen ? '收起 ▴' : '展开 ▾'
-        }
-
-        function addLog(type, msg) {
-            const list = document.getElementById('log-list')
-            const t = new Date().toLocaleTimeString('zh-CN', { hour12: false })
-            const el = document.createElement('div')
-            el.className = 'log-entry'
-            el.innerHTML = `<span class="log-time">${t}</span><span class="log-msg ${type}">${msg}</span>`
-            list.appendChild(el)
-            list.scrollTop = list.scrollHeight
-            // 自动展开日志（有内容时）
-            if (!logOpen) toggleLog()
+        function leaveRoom() {
+            currentCall?.close()
+            peer?.destroy()
+            localStream?.getTracks().forEach(t => t.stop())
+            if (remoteAudioEl) { remoteAudioEl.srcObject = null }
+            audioCtx?.close()
+            // 重置状态
+            peer = localStream = currentCall = myRole = audioCtx = null
+            muted = speakerMuted = false
+            roomCode = ''
+            // 回大厅
+            document.getElementById('room').classList.remove('visible')
+            document.getElementById('lobby').style.display = 'flex'
+            document.getElementById('join-btn').disabled = false
+            document.getElementById('room-input').value = ''
+            setLobbyStatus('')
+            // 重置按钮状态
+            document.getElementById('mute-btn').classList.remove('active')
+            document.getElementById('mute-btn').querySelector('.icon').textContent = '🎤'
+            document.getElementById('speaker-btn').classList.remove('active')
+            document.getElementById('speaker-btn').querySelector('.icon').textContent = '🔊'
         }
     </script>
 </body>
