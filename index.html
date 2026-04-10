@@ -668,7 +668,12 @@
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun.cloudflare.com:3478' },
+                        // 免费 TURN（打洞失败时中转，metered.ca 免费额度）
+                        { urls: 'turn:a.relay.metered.ca:80', username: '83e9ef10657396e2e37e81f1', credential: 'WXhJ6cMYGwT0MUOU' },
+                        { urls: 'turn:a.relay.metered.ca:443', username: '83e9ef10657396e2e37e81f1', credential: 'WXhJ6cMYGwT0MUOU' },
+                        { urls: 'turns:a.relay.metered.ca:443', username: '83e9ef10657396e2e37e81f1', credential: 'WXhJ6cMYGwT0MUOU' }
                     ]
                 }
             })
