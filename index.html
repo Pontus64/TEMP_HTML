@@ -695,12 +695,15 @@
         }
 
         function bindCall(c) {
+            // stream 事件：PeerJS 层面，收到完整的远端流
             c.on('stream', function (rs) {
-                console.log('收到 remote stream, 视频轨:', rs.getVideoTracks().length, '音频轨:', rs.getAudioTracks().length)
-                setRemoteStream(rs)
-                showRemote(rs)
-                rmsg('通话中', 'ok')
-                document.getElementById('rdot').className = 'rdot c'
+                console.log('stream event: video=', rs.getVideoTracks().length, 'audio=', rs.getAudioTracks().length)
+                if (!remoteStreamSet) {
+                    setRemoteStream(rs)
+                    showRemote()
+                    rmsg('通话中', 'ok')
+                    document.getElementById('rdot').className = 'rdot c'
+                }
             })
             c.on('close', function () {
                 rmsg('对方已离开，等待重新连接...')
@@ -713,18 +716,17 @@
                     console.log('ICE state:', s)
                     if (s === 'failed' || s === 'disconnected') {
                         rmsg('连接中断，重连中...', 'err')
-                        remoteStreamSet = false   // 允许重新接收 stream
+                        remoteStreamSet = false
                         setTimeout(function () {
                             if (roomCode) callTo(ids(roomCode).h)
-                        }, 2000)
+                        }, 2500)
+                    }
+                    if (s === 'connected' || s === 'completed') {
+                        rmsg('通话中', 'ok')
+                        document.getElementById('rdot').className = 'rdot c'
                     }
                 })
-                // 监听新轨道（某些浏览器 stream 事件不可靠）
-                c.peerConnection.addEventListener('track', function (e) {
-                    console.log('收到 track:', e.track.kind)
-                    var streams = e.streams
-                    if (streams && streams.length > 0) setRemoteStream(streams[0])
-                })
+                // 不再监听 track 事件，只用 stream 事件，避免重复触发
             }
         }
 
