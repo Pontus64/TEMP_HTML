@@ -726,27 +726,30 @@
 
         // 核心：设置远端流到 video 和 audio
         function setRemoteStream(rs) {
-            // 视频
+            // 视频：先 muted 让浏览器允许 autoplay
             var rvid = document.getElementById('rvid')
+            rvid.muted = true
             rvid.srcObject = rs
-            rvid.play().catch(function (e) { console.log('video play err:', e) })
+            rvid.play().then(function () {
+                // 视频画面起来了，保持 muted（声音走独立 audio 标签）
+                document.getElementById('rph').style.display = 'none'
+                document.getElementById('rwrap').classList.add('on')
+            }).catch(function (e) {
+                console.log('video play err:', e)
+                pendingRemoteStream = rs
+                document.getElementById('unlock-bar').style.display = 'flex'
+            })
 
-            // 音频：用 HTML 元素而不是 Web Audio，避免自动播放限制
+            // 音频独立走 <audio> 标签，不走 video，避免回声
             var raudio = document.getElementById('remote-audio')
+            raudio.muted = false
             raudio.srcObject = rs
             var p = raudio.play()
             if (p !== undefined) {
                 p.catch(function () {
-                    // 自动播放被拦截，显示解锁按钮
                     pendingRemoteStream = rs
                     document.getElementById('unlock-bar').style.display = 'flex'
                 })
-            }
-
-            // 显示/隐藏视频占位
-            if (rs.getVideoTracks().length > 0) {
-                document.getElementById('rph').style.display = 'none'
-                document.getElementById('rwrap').classList.add('on')
             }
 
             setupRemoteViz(rs)
